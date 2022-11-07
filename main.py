@@ -121,7 +121,7 @@ async def update_usis_before(ctx):
         return
     
     valid_filenames = []
-    for attachment in ctx.message.attachments:
+    for attachment in last_message.attachments:
         if attachment.filename.endswith(".xls"):
             valid_filenames.append(attachment.filename)
             await attachment.save(attachment.filename) 
@@ -138,9 +138,9 @@ async def get_links(ctx):
     enrolment_id = info["enrolment"]
     marks_id = info["marks"]
 
-    msg = f"```\nDiscord Invite Link: {discord_link}\n"
+    msg = f"Discord Invite Link: {discord_link}\n"
     msg += f"Enrolment Manager Sheet: https://docs.google.com/spreadsheets/d/{enrolment_id}\n"
-    msg += f"Marks Sheet: https://docs.google.com/spreadsheets/d/{marks_id}\n```"
+    msg += f"Marks Sheet: https://docs.google.com/spreadsheets/d/{marks_id}"
 
     await ctx.respond(content=msg, ephemeral=True)
 
