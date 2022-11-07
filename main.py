@@ -105,7 +105,7 @@ async def revive_sec_access(ctx, message):
 @faculty_and_higher()
 async def sync_with_sheets(ctx):
     await ctx.respond(content="Syncing with sheets...", ephemeral=True)
-    sync_sheets(info)
+    await sync_sheets(info)
     await ctx.respond(content="Done!", ephemeral=True)
 
 
