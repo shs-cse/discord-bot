@@ -8,7 +8,7 @@ from assign_sections_button import AssignSectionsView
 
 
 # load json
-vars.json_file = "info_debug.json"
+vars.json_file = "info.json"
 info = check_and_load(vars.json_file)
 
 
