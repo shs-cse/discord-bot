@@ -115,9 +115,10 @@ async def sync_with_sheets(ctx):
 @bot.slash_command()
 @bot_admin_and_higher()
 async def update_usis_before(ctx):
-    last_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
+    channel = ctx.channel
+    last_message = await channel.fetch_message(ctx.channel.last_message_id)
     if not last_message.attachments:
-        await ctx.send_response(content="No attachments found in the last message.", ephemeral=True)
+        await channel.send(content="No attachments found in the last message.")
         return
     
     valid_filenames = []
@@ -126,10 +127,10 @@ async def update_usis_before(ctx):
             valid_filenames.append(attachment.filename)
             await attachment.save(attachment.filename) 
     if not valid_filenames:
-        await ctx.send_response(content="No xls found in the last message.", ephemeral=True)
+        await channel.send(content="No xls found in the last message.")
     else:
         sync_usis_before(info, valid_filenames)
-        await ctx.send_response(content="USIS Before Updated", ephemeral=True)
+        await channel.send(content="USIS Before Updated")
 
 @bot.slash_command()
 @faculty_and_higher()
