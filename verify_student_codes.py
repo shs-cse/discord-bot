@@ -84,7 +84,7 @@ async def check_student(input_text, member):
             no_button = Button(label="No", style=discord.ButtonStyle.red, custom_id="no")
 
             async def yes_button_callback(interaction):
-                embed = await verify_student(member, student_id, vars.df_student.loc[id, "Name"], vars.df_student.loc[id, "Section"])
+                embed = await verify_student(member, student_id)
                 await interaction.response.edit_message(view=None, embeds=[embed])
                 
             async def no_button_callback(interaction):
