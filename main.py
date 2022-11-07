@@ -138,9 +138,9 @@ async def get_links(ctx):
     enrolment_id = info["enrolment"]
     marks_id = info["marks"]
 
-    msg = f"Discord Invite Link: {discord_link}\n"
+    msg = f"```\nDiscord Invite Link: {discord_link}\n"
     msg += f"Enrolment Manager Sheet: https://docs.google.com/spreadsheets/d/{enrolment_id}\n"
-    msg += f"Marks Sheet: https://docs.google.com/spreadsheets/d/{marks_id}"
+    msg += f"Marks Sheet: https://docs.google.com/spreadsheets/d/{marks_id}\n```"
 
     await ctx.respond(content=msg, ephemeral=True)
 
