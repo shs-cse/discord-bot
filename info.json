@@ -1,0 +1,17 @@
+{
+    "course_code":"<course code>",
+    "course_name":"<course name>",
+    "semester":"<semester> <yyyy>",
+    "n_sections":0,
+    "missing_sections":[],
+
+
+    "guild_id": 0,
+    "bot_token": "",
+    "admins": [],
+    "invite":"",
+
+    
+    "enrolment": "",
+    "marks": ""
+}
