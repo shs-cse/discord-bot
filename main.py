@@ -126,9 +126,10 @@ async def update_usis_before(ctx):
             valid_filenames.append(attachment.filename)
             await attachment.save(attachment.filename) 
     if not valid_filenames:
-        pass
+        await ctx.respond(content="No xls found in the last message.", ephemeral=True)
     else:
         sync_usis_before(info, valid_filenames)
+        await ctx.respond(content="USIS (Before) Updated", ephemeral=True)
 
 # mainly for debugging...
 # from discord_sec_manager import bulk_delete_category as bdc
