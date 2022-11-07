@@ -74,7 +74,7 @@ def sync_usis_before(info, valid_filenames):
     set_value = {}
     for filename in valid_filenames:
         metadata = pd.read_excel(filename).iloc[0, 1]
-        section_no = int(re.search(r"\nSection :  ([0-9]{2})\n", metadata).group(1))
+        section_no = re.search(r"\nSection :  ([0-9]{2})\n", metadata).group(1)
         student_list = pd.read_excel(filename, header=2)[["ID", "Name"]]
         # Hard coded, assumes maximum 40 students per section
         n_rows_to_append = 40 - student_list.shape[0]

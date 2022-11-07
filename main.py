@@ -131,6 +131,19 @@ async def update_usis_before(ctx):
         sync_usis_before(info, valid_filenames)
         await ctx.respond(content="USIS (Before) Updated", ephemeral=True)
 
+@bot.slash_command()
+@faculty_and_higher()
+async def get_links(ctx):
+    discord_link = info["invite"]
+    enrolment_id = info["enrolment"]
+    marks_id = info["marks"]
+
+    msg = f"Discord Invite Link: {discord_link}\n"
+    msg += f"Enrolment Manager Sheet: https://docs.google.com/spreadsheets/d/{enrolment_id}\n"
+    msg += f"Marks Sheet: https://docs.google.com/spreadsheets/d/{marks_id}"
+
+    await ctx.respond(content=msg, ephemeral=True)
+
 # mainly for debugging...
 # from discord_sec_manager import bulk_delete_category as bdc
 # from literals import class_types
