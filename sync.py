@@ -96,7 +96,6 @@ def sync_usis_before(info, valid_filenames):
         
         set_value[f"A{row_start}"] = section_no
         set_value[f"C{row_start}"] = student_list.values.tolist()
-        current_row += (40 - 1)
 
     update_sheet_values(set_value, sheet_id=info["enrolment"], sheet_name="USIS (before)")
         
