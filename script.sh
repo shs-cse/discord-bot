@@ -12,8 +12,6 @@ git fetch --all
 git reset --hard origin/master
 
 
-
-# create a tmux session named discord
 session="discord"
 tmux has-session -t $session 2>/dev/null
 
@@ -27,15 +25,12 @@ else
     echo "Stopped"
 fi
 
-# change directory to where the code was submitted from
 echo "Changing Directory..."
 cur_dir=$(pwd)
 tmux send-keys -t $session:0 'cd '$cur_dir C-m
 
-# activate conda environment
 echo "Activating conda environment"
 tmux send-keys -t $session:0 'conda activate pycord' C-m
 
-# run the code
 echo "Starting code"
 tmux send-keys -t $session:0 'python main.py' C-m
