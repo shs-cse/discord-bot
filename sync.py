@@ -1,8 +1,9 @@
-import vars, literals
+import vars, literals, re
 from utils_wrapper import get_role, get_channel
 from json_wrapper import update_json
 from discord_sec_manager import check_discord_sec, get_sec_role
 from pygsheets_wrapper import get_sheet_data, update_sheet_values
+import pandas as pd
 
 
 async def sync_init(bot, info):
@@ -60,3 +61,29 @@ async def sync_sheets(info):
         role_two = "" if not sorted_roles[1:] else ", ".join(sorted_roles[1:])
         arr_updated[k] += [role_one, role_two]
     update_sheet_values({"C2":arr_updated}, sheet_id=info["enrolment"], sheet_name="Discord")
+
+# -------------------------------------
+# Added by Abid, not tested
+# -------------------------------------
+def sync_usis_before(info, valid_filenames):
+    blank_arr1 = [[""]]*(999)
+    blank_arr2 = [[""]*2]*(999)
+    update_sheet_values({"A2":blank_arr1, "C2":blank_arr2}, sheet_id=info["enrolment"], sheet_name="USIS (before)")
+    
+    current_row = 2
+    set_value = {}
+    for filename in valid_filenames:
+        metadata = pd.read_excel(filename).iloc[0, 1]
+        section_no = int(re.search(r"\nSection :  ([0-9]{2})\n", metadata).group(1))
+        student_list = pd.read_excel(filename, header=2)[["ID", "Name"]]
+        # Hard coded, assumes maximum 40 students per section
+        n_rows_to_append = 40 - student_list.shape[0]
+        blank_rows = pd.DataFrame({"ID":[""]*n_rows_to_append, "Name":[""]*n_rows_to_append})
+        student_list = student_list.append(blank_rows, ignore_index=True)
+
+        set_value[f"A{current_row}"] = section_no
+        set_value[f"C{current_row}"] = student_list.values.tolist()
+        current_row += (40 - 1)
+
+    update_sheet_values(set_value, sheet_id=info["enrolment"], sheet_name="USIS (before)")
+        

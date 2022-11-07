@@ -1,6 +1,6 @@
 import vars, literals, re
 import discord  #upm package(py-cord)
-from sync import sync_init, sync_roles, sync_sheets
+from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
 from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
 from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher
@@ -108,6 +108,27 @@ async def sync_with_sheets(ctx):
     sync_sheets(info)
     await ctx.respond(content="Done!", ephemeral=True)
 
+
+# -------------------------------------
+# Added by Abid, not tested
+# -------------------------------------
+@bot.slash_command()
+@bot_admin_and_higher()
+async def update_usis_before(ctx):
+    last_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
+    if not last_message.attachments:
+        await ctx.respond(content="No attachments found in the last message.", ephemeral=True)
+        return
+    
+    valid_filenames = []
+    for attachment in ctx.message.attachments:
+        if attachment.filename.endswith(".xls"):
+            valid_filenames.append(attachment.filename)
+            await attachment.save(attachment.filename) 
+    if not valid_filenames:
+        pass
+    else:
+        sync_usis_before(info, valid_filenames)
 
 # mainly for debugging...
 # from discord_sec_manager import bulk_delete_category as bdc

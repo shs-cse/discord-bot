@@ -73,5 +73,6 @@ dependencies:
     - rsa==4.9
     - uritemplate==4.1.1
     - urllib3==1.26.12
+    - xlrd==2.0.1
     - yarl==1.8.1
-prefix: /home/tanvir/anaconda3/envs/pycord
+prefix: /home/abid/anaconda3/envs/pycord
