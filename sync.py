@@ -75,10 +75,10 @@ def sync_usis_before(info, valid_filenames):
         section_no = re.search(r"\nSection :  ([0-9]{2})\n", metadata).group(1)
         row_start = 40*(int(section_no) - 1) + 2
 
-        blank_arr1 = [[""]]*(40)
-        blank_arr2 = [[""]*2]*(40)
+        blank_arr1 = None
+        blank_arr2 = [[None]*2]*(40)
 
-        set_value[f"A{row_start}"] = blank_arr1
+        set_value[f"E{row_start}"] = blank_arr1
         set_value[f"C{row_start}"] = blank_arr2
     update_sheet_values(set_value, sheet_id=info["enrolment"], sheet_name="USIS (before)")
     
@@ -90,11 +90,8 @@ def sync_usis_before(info, valid_filenames):
         row_start = 40*(int(section_no) - 1) + 2
 
         student_list = pd.read_excel(filename, header=2)[["ID", "Name"]]
-        n_rows_to_append = 40 - student_list.shape[0]
-        blank_rows = pd.DataFrame({"ID":[""]*n_rows_to_append, "Name":[""]*n_rows_to_append})
-        student_list = pd.concat([student_list, blank_rows], ignore_index=True)
         
-        set_value[f"A{row_start}"] = section_no
+        set_value[f"E{row_start}"] = int(section_no)
         set_value[f"C{row_start}"] = student_list.values.tolist()
 
     update_sheet_values(set_value, sheet_id=info["enrolment"], sheet_name="USIS (before)")

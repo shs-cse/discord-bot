@@ -110,13 +110,15 @@ async def sync_with_sheets(ctx):
 
 
 # -------------------------------------
-# Added by Abid, not tested
+# Added by Abid, janky
 # -------------------------------------
 @bot.slash_command()
 @bot_admin_and_higher()
 async def update_usis_before(ctx):
+    last_msg_id = ctx.channel.last_message_id
+    await ctx.respond(content="Updating usis_before...")
     channel = ctx.channel
-    last_message = await channel.fetch_message(ctx.channel.last_message_id)
+    last_message = await channel.fetch_message(last_msg_id)
     if not last_message.attachments:
         await channel.send(content="No attachments found in the last message.")
         return
