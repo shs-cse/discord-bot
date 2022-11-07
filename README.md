@@ -14,7 +14,7 @@ mkdir fall_2022 && cd fall_2022
 git clone https://github.com/abidabrar-bracu/discord-bot.git . && git update-index --skip-worktree info.json
 ```
 - Create a new server by copying the template [https://discord.new/RVh3qBrGcsxA](https://discord.new/RVh3qBrGcsxA). The server name should follow the format `<course-code> <semester> <yyyy>`, for example, `CSE251 Fall 2022`.
-- Add your discord bot the server. Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server.
+- Add your discord bot the server and add `bot` role to the bot. Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server.
 - Update the `info.json` file accordingly.
 - Finally, start the but by running the script
 ```bash
