@@ -44,17 +44,14 @@ async def sync_sheets(info):
     print("Pulling data from sheets...")
     vars.df_student = get_sheet_data(info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
-
     # push
     print("Pushing discord data to sheets...")
-    # erase exisiting data
-    blank_arr = [[""]*6]*(1000)
-    update_sheet_values({"C2":blank_arr}, sheet_id=info["enrolment"], sheet_name="Discord")
+    get_sheet(info['enrolment'], 'Discord').clear('C2:C')
     arr_updated = []
     for k, mem in enumerate(vars.guild.members):
         arr_updated.append([])
         arr_updated[k] += [mem.name, str(mem.id), mem.nick, mem.roles[0].name]
-
+        # primary and secondary roles
         sorted_roles = [role.name for role in mem.roles[1:]]
         sorted_roles.sort()
         role_one = "" if not sorted_roles[:1] else sorted_roles[0]
