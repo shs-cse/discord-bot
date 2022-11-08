@@ -32,7 +32,7 @@ To exit the session without closing it, press `Ctrl+b`, then `d`
 ## If you want to update code or start running again
 - cd to the desired directory, e.g.,
 ```bash
-cd /home/abid/fall_2022
+cd ~/fall_2022
 ```
 - run the script
 ```bash
