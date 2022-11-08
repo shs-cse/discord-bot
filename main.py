@@ -3,7 +3,7 @@ import discord  #upm package(py-cord)
 from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
 from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
-from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher
+from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsView
 
 
@@ -109,30 +109,23 @@ async def sync_with_sheets(ctx):
     await ctx.respond(content="Done!", ephemeral=True)
 
 
-# -------------------------------------
-# Added by Abid, janky
-# -------------------------------------
-@bot.slash_command()
+@bot.message_command(name="Update USIS (Before)")
 @bot_admin_and_higher()
-async def update_usis_before(ctx):
-    last_msg_id = ctx.channel.last_message_id
-    await ctx.respond(content="Updating usis_before...")
-    channel = ctx.channel
-    last_message = await channel.fetch_message(last_msg_id)
-    if not last_message.attachments:
-        await channel.send(content="No attachments found in the last message.")
-        return
-    
-    valid_filenames = []
-    for attachment in last_message.attachments:
-        if attachment.filename.endswith(".xls"):
-            valid_filenames.append(attachment.filename)
-            await attachment.save(attachment.filename) 
-    if not valid_filenames:
-        await channel.send(content="No xls found in the last message.")
-    else:
-        sync_usis_before(info, valid_filenames)
-        await channel.send(content="USIS Before Updated")
+async def update_usis_before(ctx, message):
+    await ctx.respond(content="Updating usis_before...", ephemeral=True)
+    try:
+        valid_filenames = []
+        for attachment in message.attachments:
+            if attachment.filename.endswith(".xls"):
+                valid_filenames.append(attachment.filename)
+                await attachment.save(attachment.filename) 
+        if not valid_filenames:
+            await ctx.respond(content="No xls found in the last message.", ephemeral=True)
+        else:
+            sync_usis_before(info, valid_filenames)
+            await ctx.respond(content="USIS Before Updated", ephemeral=True)
+    except:
+        await ctx.respond(content="No attachments found in the last message.", ephemeral=True)
 
 @bot.slash_command()
 @faculty_and_higher()
@@ -141,9 +134,9 @@ async def get_links(ctx):
     enrolment_id = info["enrolment"]
     marks_id = info["marks"]
 
-    msg = f"Discord Invite Link: {discord_link}\n"
-    msg += f"Enrolment Manager Sheet: https://docs.google.com/spreadsheets/d/{enrolment_id}\n"
-    msg += f"Marks Sheet: https://docs.google.com/spreadsheets/d/{marks_id}"
+    msg = f"Discord Invite Link: <{discord_link}>\n\n"
+    msg += f"Enrolment Manager Sheet: <{get_link_from_sheet_id(enrolment_id)}>\n\n"
+    msg += f"Marks Sheet: <{get_link_from_sheet_id(marks_id)}>"
 
     await ctx.respond(content=msg, ephemeral=True)
 
@@ -167,12 +160,5 @@ async def get_links(ctx):
 #             msg2 = await bdc(sec, 'lab')
 #             msg = f"{msg1}\n{msg2}"
 #     await ctx.respond(msg, ephemeral=True)
-
-# # mainly for debugging
-# @bot.slash_command()
-# @bot_admin_and_higher()
-# async def get_message(ctx, id):
-#     m = await ctx.channel.fetch_message(id)
-#     await ctx.respond(str(m.webhook_id), ephemeral=True)
 
 bot.run(info['bot_token'])
