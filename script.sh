@@ -2,7 +2,7 @@
 source ~/.bashrc
 
 # if the `pycord` environment does not exist, create using environment.yml
-if [ ! -d "${HOME}/anaconda3/envs/pycord" ]; then
+if ! compgen -G "${HOME}/*conda3/envs/pycord"; then
     conda env create -f environment.yml
 fi
 

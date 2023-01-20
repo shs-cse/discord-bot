@@ -44,17 +44,14 @@ async def sync_sheets(info):
     print("Pulling data from sheets...")
     vars.df_student = get_sheet_data(info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
-
     # push
     print("Pushing discord data to sheets...")
-    # erase exisiting data
-    blank_arr = [[""]*6]*(1000)
-    update_sheet_values({"C2":blank_arr}, sheet_id=info["enrolment"], sheet_name="Discord")
+    get_sheet(info['enrolment'], 'Discord').clear('C2:C')
     arr_updated = []
     for k, mem in enumerate(vars.guild.members):
         arr_updated.append([])
         arr_updated[k] += [mem.name, str(mem.id), mem.nick, mem.roles[0].name]
-
+        # primary and secondary roles
         sorted_roles = [role.name for role in mem.roles[1:]]
         sorted_roles.sort()
         role_one = "" if not sorted_roles[:1] else sorted_roles[0]
@@ -62,37 +59,31 @@ async def sync_sheets(info):
         arr_updated[k] += [role_one, role_two]
     update_sheet_values({"C2":arr_updated}, sheet_id=info["enrolment"], sheet_name="Discord")
 
-# -------------------------------------
-# Added by Abid, not tested
-# -------------------------------------
-def sync_usis_before(info, valid_filenames):
-    # Hard coded, assumes maximum 40 students per section
-
-    # First, clean corresponding sections
-    set_value = {}
-    for filename in valid_filenames:
-        metadata = pd.read_excel(filename).iloc[0, 1]
-        section_no = re.search(r"\nSection :  ([0-9]{2})\n", metadata).group(1)
-        row_start = 40*(int(section_no) - 1) + 2
-
-        blank_arr1 = None
-        blank_arr2 = [[None]*2]*(40)
-
-        set_value[f"E{row_start}"] = blank_arr1
-        set_value[f"C{row_start}"] = blank_arr2
-    update_sheet_values(set_value, sheet_id=info["enrolment"], sheet_name="USIS (before)")
     
-    # Then, update section values
-    set_value = {}
-    for filename in valid_filenames:
+def sync_usis_before(info, filenames):
+    # read Enrolment sheet > USIS (before)
+    usis_sheet = get_sheet(info['enrolment'], 'USIS (before)')
+    usis_data = usis_sheet.get_as_df(start='B1', end='D', include_tailing_empty_rows =False)
+    usis_data = usis_data.rename(columns={usis_data.columns[0]: 'Section'})
+    # read ATTENDANCE_SHEET_i.xls
+    for filename in filenames:
+        # get section number
         metadata = pd.read_excel(filename).iloc[0, 1]
-        section_no = re.search(r"\nSection :  ([0-9]{2})\n", metadata).group(1)
-        row_start = 40*(int(section_no) - 1) + 2
-
-        student_list = pd.read_excel(filename, header=2)[["ID", "Name"]]
-        
-        set_value[f"E{row_start}"] = int(section_no)
-        set_value[f"C{row_start}"] = student_list.values.tolist()
-
-    update_sheet_values(set_value, sheet_id=info["enrolment"], sheet_name="USIS (before)")
+        section_no = re.search(r"\nSection :  ([0-9]{2})\n", metadata)[1]
+        section_no = int(section_no)
+        print(f"updating student list of {section_no = }")
+        # get students in that section
+        section_students = pd.read_excel(filename, header=2)[["ID", "Name"]]
+        section_students.insert(0, 'Section', section_no)
+        section_students.columns = usis_data.columns
+        # update usis dataframe
+        usis_data = usis_data[usis_data['Section'] != section_no]
+        usis_data = pd.concat([usis_data, section_students], ignore_index=True)
+        usis_data = usis_data.sort_values(by=['Section', 'Student ID'], ignore_index=True)
+    # update Enrolment sheet > USIS (before)    
+    end = usis_sheet.rows
+    usis_sheet.clear('A2', f'A{end}')
+    update_sheet_values({f'A2:A{end}' : usis_data.iloc[:, :1].values.tolist()}, usis_sheet)
+    usis_sheet.clear('C2', f'D{end}')
+    update_sheet_values({f'C2:D{end}' : usis_data.iloc[:, 1:].values.tolist()}, usis_sheet)
         

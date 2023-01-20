@@ -13,6 +13,11 @@ def get_channel(name):
     return utils.get(vars.guild.channels, name=name)
 
 
+# sheets id -> link
+def get_link_from_sheet_id(sheet_id):
+    return f"https://docs.google.com/spreadsheets/d/{sheet_id}"
+
+
 # decorator for slash command permissions
 roles_hierarchy = ['student-tutor', 'faculty', 'bot-admin', 'admin']
 
