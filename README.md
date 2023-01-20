@@ -16,10 +16,11 @@ git clone https://github.com/shs-cse/discord-bot.git . && git update-index --ski
 - Create a new server by copying the template [https://discord.new/RVh3qBrGcsxA](https://discord.new/RVh3qBrGcsxA). The server name should follow the format `<course-code> <semester> <yyyy>`, for example, `CSE251 Fall 2022`.
 - Add your discord bot the server and add `bot` role to the bot. Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server.
 - Update the `info.json` file accordingly.
-- Finally, start the but by running the script
+- Start the bot by running the script
 ```bash
-bash script.sh
+bash -i script.sh
 ```
+- To update `USIS (before)` in the enrolment sheet, upload the `.xls` files downloaded from USIS in any channel as a message, click "More > Apps > Update USIS (Before)". You may need to repeat this multiple times since you can only upload 10 files at a time.
 
 
 
@@ -36,5 +37,5 @@ cd ~/fall_2022
 ```
 - run the script
 ```bash
-bash script.sh
+bash -i script.sh
 ```
