@@ -48,10 +48,11 @@ async def on_member_join(member):
         await member.send(welcome_msg)
 
 
-@bot.slash_command()
+@bot.slash_command(name = "Check Everyone", description="DMs unverified students to complete verification & checks role of verified.")
 @bot_admin_and_higher()
 async def check_everyone(ctx):
-    await ctx.respond(content="Checking everyone...", ephemeral=True)
+    #await ctx.respond(content="Checking everyone...", ephemeral=True)
+    await ctx.defer()
 
     for member in get_channel(name="💁🏻admin-help").members:
         if member.guild_permissions.manage_guild:
@@ -67,15 +68,15 @@ async def check_everyone(ctx):
         else:
             _ = await verify_student(member, student_id)
 
-    await ctx.respond(content="Done!", ephemeral=True)
+    await ctx.followup.send(content="Done checking everyone!", ephemeral=True)
 
-@bot.slash_command()
+@bot.slash_command(name = "Post Faculty Section", description="Posts a button for faculties to auto assign section roles.")
 @bot_admin_and_higher()
 async def post_faculty_section(ctx):
     await ctx.respond(content="Click the button below to get access to your sections", view=AssignSectionsView())
 
 
-@bot.slash_command()
+@bot.slash_command(name = "Post Verify", description="Posts a button for students to verify.")
 @bot_admin_and_higher()
 async def post_verify(ctx):
     await ctx.respond("Click the button below to verify", view=VerificationButtonView())
@@ -101,12 +102,13 @@ async def revive_sec_access(ctx, message):
         await ctx.respond("failed to revive message.", ephemeral=True)
 
 
-@bot.slash_command()
+@bot.slash_command(name = "Sync Sheets", description = "Sync updates from enrolment sheet and marks sheet with bot.")
 @faculty_and_higher()
 async def sync_with_sheets(ctx):
-    await ctx.respond(content="Syncing with sheets...", ephemeral=True)
+    # await ctx.respond(content="Syncing with sheets...", ephemeral=True)
+    await ctx.defer()
     await sync_sheets(info)
-    await ctx.respond(content="Done!", ephemeral=True)
+    await ctx.followup.send(content="Done syncing with sheets!", ephemeral=True)
 
 
 @bot.message_command(name="Update USIS (Before)")
@@ -120,14 +122,14 @@ async def update_usis_before(ctx, message):
                 valid_filenames.append(attachment.filename)
                 await attachment.save(attachment.filename) 
         if not valid_filenames:
-            await ctx.respond(content="No xls found in the last message.", ephemeral=True)
+            await ctx.followup.send(content="No xls found in the last message.", ephemeral=True)
         else:
             sync_usis_before(info, valid_filenames)
-            await ctx.respond(content="USIS Before Updated", ephemeral=True)
+            await ctx.followup.send(content="USIS Before Updated", ephemeral=True)
     except:
-        await ctx.respond(content="No attachments found in the last message.", ephemeral=True)
+        await ctx.followup.send(content="No attachments found in the last message.", ephemeral=True)
 
-@bot.slash_command()
+@bot.slash_command(name = "Get Links", description = "Get the links for discord invite, enrolment and marks sheet")
 @faculty_and_higher()
 async def get_links(ctx):
     discord_link = info["invite"]
