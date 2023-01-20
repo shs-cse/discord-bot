@@ -46,7 +46,7 @@ async def sync_sheets(info):
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
     # push
     print("Pushing discord data to sheets...")
-    get_sheet(info['enrolment'], 'Discord').clear('C2:C')
+    get_sheet(info['enrolment'], 'Discord').clear('C2:H')
     arr_updated = []
     for k, mem in enumerate(vars.guild.members):
         arr_updated.append([])
