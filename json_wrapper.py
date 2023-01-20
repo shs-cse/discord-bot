@@ -2,6 +2,11 @@ import re, os, literals, json
 from pygsheets_wrapper import copy_sheet
 
 def check_and_load(file):
+    # use the `json_passed` file to indicate of all the fields are okay
+    # useful for first run
+    if os.path.exists("./json_passed"):
+        os.remove("./json_passed")
+        
     # google sheets credentials
     assert os.path.exists("./credentials.json"), "Google sheets credentials.json file was not provided in the directory."
     
@@ -35,7 +40,10 @@ def check_and_load(file):
                 Then, add the bot to the server, give admin permission, 
                 move it's role to the very top  and copy the server ID and paste it in {file}
                 """
-
+    
+    # passed all tests
+    with open("json_passed", 'w') as f:
+        f.write("Passed!\n")
     # finally print all fields
     # for field in info:
     #     print(f"{field} = {info[field]}")
