@@ -2,7 +2,7 @@ import vars, literals, re
 from utils_wrapper import get_role, get_channel
 from json_wrapper import update_json
 from discord_sec_manager import check_discord_sec, get_sec_role
-from pygsheets_wrapper import get_sheet_data, update_sheet_values
+from pygsheets_wrapper import get_sheet_data, update_sheet_values, get_sheet
 import pandas as pd
 
 
