@@ -122,12 +122,12 @@ async def update_usis_before(ctx, message):
                 valid_filenames.append(attachment.filename)
                 await attachment.save(attachment.filename) 
         if not valid_filenames:
-            await ctx.followup.send(content="No xls found in the last message.", ephemeral=True)
+            await ctx.followup.send(content="No xls found in the this message.", ephemeral=True)
         else:
             sync_usis_before(info, valid_filenames)
             await ctx.followup.send(content="USIS Before Updated", ephemeral=True)
     except:
-        await ctx.followup.send(content="No attachments found in the last message.", ephemeral=True)
+        await ctx.followup.send(content="No attachments found in the this message.", ephemeral=True)
 
 @bot.slash_command(name = "get-links", description = "Get the links for discord invite, enrolment and marks sheet")
 @faculty_and_higher()
