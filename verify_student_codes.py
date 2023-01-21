@@ -24,8 +24,14 @@ class SutdentIDForm(Modal):
 
     async def callback(self, interaction: discord.Interaction):
         input_text = self.children[0].value
-        embed, view = await check_student(input_text, interaction.user)
-        await interaction.response.send_message(embeds=[embed], view=view, ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
+        try:
+            embed, view = await check_student(input_text, interaction.user)
+        except:
+            embed = discord.Embed(title=":x: You could not be verified", color=discord.Color.red())
+            embed.description = "Something went wrong. Please try again later."
+            view = View() # empty view instead of None to prevent error
+        await interaction.followup.send(view=view, embeds=[embed], ephemeral = True)
 
 
 async def check_student(input_text, member):
@@ -38,7 +44,7 @@ async def check_student(input_text, member):
 
     # Handle case 1-4: failure
     embed = discord.Embed(title=":x: You could not be verified", color=discord.Color.red())
-    view = None
+    view = View() # empty view instead of None to prevent error
     # Case 1: id is not a valid student id
     extract_id = re.search(literals.regex_student['id'], input_text)
     if not extract_id:
@@ -59,7 +65,7 @@ async def check_student(input_text, member):
             break
 
     if existing_mem:
-        embed.description = f"{student_id} is already taken by {existing_mem.name}#{existing_mem.discriminator}. "
+        embed.description = f"{student_id} is already taken by {existing_mem.mention}. "
         embed.description += "If this is your old ID and you want to use this new one, please remove the old one first. "
         embed.description += "If someone else took your ID, Please contact an admin ASAP."
         return embed, view
@@ -84,8 +90,14 @@ async def check_student(input_text, member):
             no_button = Button(label="No", style=discord.ButtonStyle.red, custom_id="no")
 
             async def yes_button_callback(interaction):
-                embed = await verify_student(member, student_id)
-                await interaction.response.edit_message(view=None, embeds=[embed])
+                message_id = interaction.message.id
+                await interaction.response.defer(ephemeral=True)
+                try: 
+                    embed = await verify_student(member, student_id)
+                except:
+                    embed = discord.Embed(title=":x: You could not be verified", color=discord.Color.red())
+                    embed.description = "Something went wrong while calling `verify_student`. Please try again later."
+                await interaction.followup.edit_message(message_id, view=None, embeds=[embed])
                 
             async def no_button_callback(interaction):
                 embed.description = "You selected no. Please try again with the correct account."
