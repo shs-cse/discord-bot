@@ -48,7 +48,7 @@ async def on_member_join(member):
         await member.send(welcome_msg)
 
 
-@bot.slash_command(name = "Check Everyone", description="DMs unverified students to complete verification & checks role of verified.")
+@bot.slash_command(name = "check-everyone", description="DMs unverified students to complete verification & checks role of verified.")
 @bot_admin_and_higher()
 async def check_everyone(ctx):
     #await ctx.respond(content="Checking everyone...", ephemeral=True)
@@ -70,13 +70,13 @@ async def check_everyone(ctx):
 
     await ctx.followup.send(content="Done checking everyone!", ephemeral=True)
 
-@bot.slash_command(name = "Post Faculty Section", description="Posts a button for faculties to auto assign section roles.")
+@bot.slash_command(name = "post-faculty-section", description="Posts a button for faculties to auto assign section roles.")
 @bot_admin_and_higher()
 async def post_faculty_section(ctx):
     await ctx.respond(content="Click the button below to get access to your sections", view=AssignSectionsView())
 
 
-@bot.slash_command(name = "Post Verify", description="Posts a button for students to verify.")
+@bot.slash_command(name = "post-verify", description="Posts a button for students to verify.")
 @bot_admin_and_higher()
 async def post_verify(ctx):
     await ctx.respond("Click the button below to verify", view=VerificationButtonView())
@@ -102,7 +102,7 @@ async def revive_sec_access(ctx, message):
         await ctx.respond("failed to revive message.", ephemeral=True)
 
 
-@bot.slash_command(name = "Sync Sheets", description = "Sync updates from enrolment sheet and marks sheet with bot.")
+@bot.slash_command(name = "sync-sheets", description = "Sync updates from enrolment sheet and marks sheet with bot.")
 @faculty_and_higher()
 async def sync_with_sheets(ctx):
     # await ctx.respond(content="Syncing with sheets...", ephemeral=True)
@@ -129,7 +129,7 @@ async def update_usis_before(ctx, message):
     except:
         await ctx.followup.send(content="No attachments found in the last message.", ephemeral=True)
 
-@bot.slash_command(name = "Get Links", description = "Get the links for discord invite, enrolment and marks sheet")
+@bot.slash_command(name = "get-inks", description = "Get the links for discord invite, enrolment and marks sheet")
 @faculty_and_higher()
 async def get_links(ctx):
     discord_link = info["invite"]
