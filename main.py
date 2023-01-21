@@ -129,7 +129,7 @@ async def update_usis_before(ctx, message):
     except:
         await ctx.followup.send(content="No attachments found in the last message.", ephemeral=True)
 
-@bot.slash_command(name = "get-inks", description = "Get the links for discord invite, enrolment and marks sheet")
+@bot.slash_command(name = "get-links", description = "Get the links for discord invite, enrolment and marks sheet")
 @faculty_and_higher()
 async def get_links(ctx):
     discord_link = info["invite"]
