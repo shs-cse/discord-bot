@@ -52,7 +52,7 @@ async def on_member_join(member):
 @bot_admin_and_higher()
 async def check_everyone(ctx):
     #await ctx.respond(content="Checking everyone...", ephemeral=True)
-    await ctx.defer()
+    await ctx.defer(ephemeral=True)
 
     for member in get_channel(name="💁🏻admin-help").members:
         if member.guild_permissions.manage_guild:
@@ -106,7 +106,7 @@ async def revive_sec_access(ctx, message):
 @faculty_and_higher()
 async def sync_with_sheets(ctx):
     # await ctx.respond(content="Syncing with sheets...", ephemeral=True)
-    await ctx.defer()
+    await ctx.defer(ephemeral=True)
     await sync_sheets(info)
     await ctx.followup.send(content="Done syncing with sheets!", ephemeral=True)
 
@@ -114,7 +114,7 @@ async def sync_with_sheets(ctx):
 @bot.message_command(name="Update USIS (Before)")
 @bot_admin_and_higher()
 async def update_usis_before(ctx, message):
-    await ctx.respond(content="Updating usis_before...", ephemeral=True)
+    await ctx.defer(ephemeral=True)
     try:
         valid_filenames = []
         for attachment in message.attachments:
