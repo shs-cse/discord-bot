@@ -19,14 +19,15 @@ class AssignSectionsButton(Button):
 
     async def callback(self, interaction):
         user = interaction.user
+        await interaction.response.defer(ephemeral=True)
         if vars.faculty_role not in user.roles:
             embed = discord.Embed(title=":x: Error", description="You are not a faculty member", color=discord.Color.red())
-            await interaction.response.send_message(embeds=[embed], ephemeral=True)
+            await interaction.followup.send(embeds=[embed], ephemeral=True)
             return
         if not re.search(r"^\[[A-Z0-9]{3}\].*", user.display_name):
             embed = discord.Embed(title=":x: Error", color=discord.Color.red())
             embed.description = "Your nickname is not set properly. Please change your nickname to `[INITIAL] Full Name` format first."
-            await interaction.response.send_message(embeds=[embed], ephemeral=True)
+            await interaction.followup.send(embeds=[embed], ephemeral=True)
             return
         else:
             initial = re.search(r"^\[([A-Z0-9]{3})\].*", user.display_name).group(1)
@@ -45,4 +46,4 @@ class AssignSectionsButton(Button):
                 embed.add_field(name=f"{ctype.title()} Sections", value=all_ctype_roles)
                 await user.add_roles(*ctype_roles)
 
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
