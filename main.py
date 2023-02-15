@@ -5,6 +5,8 @@ from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
 from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsView
+import matplotlib.pyplot as plt
+from pandas.plotting import table
 
 
 # load json
@@ -81,7 +83,6 @@ async def post_faculty_section(ctx):
 async def post_verify(ctx):
     await ctx.respond("Click the button below to verify", view=VerificationButtonView())
 
-
 @bot.message_command(name="Revive as 'Verify Me'")
 @bot_admin_and_higher()
 async def revive_verify(ctx, message):
@@ -143,6 +144,22 @@ async def get_links(ctx):
     await ctx.respond(content=msg, ephemeral=True)
 
 # mainly for debugging...
+async def autocomplete_df_selection(ctx: discord.AutocompleteContext):
+    return ["Student", "Routine"]
+
+@bot.slash_command(name = "show-dataframe", description="Shows the head of the selected dataframe")
+@bot_admin_and_higher()
+async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF" autocomplete=autocomplete_df_selection)):
+    ax = plt.subplot(111, frame_on=False, dpi=160) # no visible frame
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    if dataframe == "Student":
+        table(ax, vars.df_student.head())
+    else:
+        table(ax, vars.df_routine.head())
+    await ctx.respond("Here is the dataframe head", view=VerificationButtonView())
+
+
 # from discord_sec_manager import bulk_delete_category as bdc
 # from literals import class_types
 # @bot.slash_command()
