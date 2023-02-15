@@ -157,7 +157,8 @@ async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF" autocomp
         table(ax, vars.df_student.head())
     else:
         table(ax, vars.df_routine.head())
-    await ctx.respond("Here is the dataframe head", view=VerificationButtonView())
+    plt.savefig('mytable.png')
+    await ctx.respond("Here is the dataframe head", file=discord.File('mytable.png'), ephemeral=True)
 
 
 # from discord_sec_manager import bulk_delete_category as bdc
