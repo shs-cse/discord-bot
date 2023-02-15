@@ -150,7 +150,7 @@ async def autocomplete_df_selection(ctx: discord.AutocompleteContext):
 @bot.slash_command(name = "show-dataframe", description="Shows the head of the selected dataframe")
 @bot_admin_and_higher()
 async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF", autocomplete=autocomplete_df_selection)):
-    ax = plt.subplot(111, frame_on=False) # no visible frame
+    fig, ax = plt.subplots(1, 1, figsize=(140, 10), dpi=160, frameon=False) # no visible frame
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     if dataframe == "Student":
