@@ -64,7 +64,7 @@ async def check_everyone(ctx):
     for member in vars.student_role.members:
         student_id = int(re.search(literals.regex_student['id'], member.display_name).group(0))
         if student_id not in vars.df_student.index:
-            member.remove_roles(*member.roles)
+            await member.edit(roles=[], nick=None)
         else:
             _ = await verify_student(member, student_id)
 
