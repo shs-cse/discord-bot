@@ -5,8 +5,6 @@ from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
 from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsView
-import matplotlib.pyplot as plt
-from pandas.plotting import table
 
 
 # load json
@@ -144,21 +142,21 @@ async def get_links(ctx):
     await ctx.respond(content=msg, ephemeral=True)
 
 # mainly for debugging...
-async def autocomplete_df_selection(ctx: discord.AutocompleteContext):
-    return ["Student", "Routine"]
+# async def autocomplete_df_selection(ctx: discord.AutocompleteContext):
+#     return ["Student", "Routine"]
 
-@bot.slash_command(name = "show-dataframe", description="Shows the head of the selected dataframe")
-@bot_admin_and_higher()
-async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF", autocomplete=autocomplete_df_selection)):
-    fig, ax = plt.subplots(1, 1, figsize=(140, 10), dpi=160, frameon=False) # no visible frame
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-    if dataframe == "Student":
-        table(ax, vars.df_student.head())
-    else:
-        table(ax, vars.df_routine.head())
-    plt.savefig('mytable.png', dpi=160)
-    await ctx.respond("Here is the dataframe head", file=discord.File('mytable.png'), ephemeral=True)
+# @bot.slash_command(name = "show-dataframe", description="Shows the head of the selected dataframe")
+# @bot_admin_and_higher()
+# async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF", autocomplete=autocomplete_df_selection)):
+#     fig, ax = plt.subplots(1, 1, figsize=(140, 10), dpi=160, frameon=False) # no visible frame
+#     ax.xaxis.set_visible(False)
+#     ax.yaxis.set_visible(False)
+#     if dataframe == "Student":
+#         table(ax, vars.df_student.head())
+#     else:
+#         table(ax, vars.df_routine.head())
+#     plt.savefig('mytable.png', dpi=160)
+#     await ctx.respond("Here is the dataframe head", file=discord.File('mytable.png'), ephemeral=True)
 
 
 # from discord_sec_manager import bulk_delete_category as bdc
