@@ -149,7 +149,7 @@ async def autocomplete_df_selection(ctx: discord.AutocompleteContext):
 
 @bot.slash_command(name = "show-dataframe", description="Shows the head of the selected dataframe")
 @bot_admin_and_higher()
-async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF" autocomplete=autocomplete_df_selection)):
+async def show_dataframe(ctx, dataframe: discord.Option(str, "Which DF", autocomplete=autocomplete_df_selection)):
     ax = plt.subplot(111, frame_on=False, dpi=160) # no visible frame
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
