@@ -16,3 +16,4 @@ all_sec_roles = {}
 df_student = None
 df_routine = None
 df_marks = None
+marks_categories = []

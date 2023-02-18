@@ -65,6 +65,7 @@ async def sync_sheets(info):
         info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
     vars.df_marks = get_marks_data(info["marks"], "Marks")
+    vars.marks_categories = vars.df_marks.columns.levels[0]
     # push
     print("Pushing discord data to sheets...")
     get_sheet(info['enrolment'], 'Discord').clear('C2:H')
