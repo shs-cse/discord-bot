@@ -209,8 +209,9 @@ async def fetch_marks(ctx,
     if member not in vars.student_role.members:
         await ctx.followup.send(f"Can not retrieve marks since {member.mention} is not a verified student.")
     else:
-        marks = vars.df_marks.loc[member.id, category]
-        await ctx.followup.send(f"Marks for {member.mention}:\n{marks.to_dict()}")
+        marks = vars.df_marks.loc[member.id].xs(category, level=1)[0]
+        marks_child = vars.df_marks.loc[member.id, category]
+        await ctx.followup.send(f"Marks for {member.mention}:\n{category}:{marks}\n{marks_child.to_dict()}")
 
 
 # mainly for debugging...

@@ -96,7 +96,7 @@ def create_df_from_tree(tree):
 
 
 def extract_df_from_headers(headers):
-    print(f"Extracting from sheet... ")
+    print(f"Extracting from marks sheet... ")
     df = pd.DataFrame()
     parents = ['Summary']
     prev_depth = -1
