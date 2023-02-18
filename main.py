@@ -205,7 +205,7 @@ async def fetch_marks(ctx,
                       category: discord.Option(str,
                                                autocomplete=discord.utils.basic_autocomplete(get_marks_categories))):
     await ctx.defer(ephemeral=True)
-    print(member.id, type(member.id))
+    # check if member is a verified student
     if member not in vars.student_role.members:
         await ctx.followup.send(f"Can not retrieve marks since {member.mention} is not a verified student.")
     else:
