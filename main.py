@@ -4,7 +4,7 @@ from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
 from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
 from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
-from assign_sections_button import AssignSectionsView
+from assign_sections_button import AssignSectionsView, assign_sections
 
 
 # load json
@@ -32,10 +32,13 @@ async def on_member_join(member):
     if member.bot:
         return
     elif member in vars.eee_guild.members:
+        nick_in_eee_guild = vars.eee_guild.get_member(member.id).nick
+        await member.edit(nick=nick_in_eee_guild)
         await member.send(f"Welcome! You have been given the faculty role to the {course_code} {semester} Discord server! " + 
                           "Please change your **__nickname__** for the server to `[Initial] Full Name` format, " + 
                           "e.g., `[ABA] Abid Abrar`")
         await member.add_roles(vars.faculty_role)
+        await assign_sections(member)
     # most likely student
     else:
         rules = get_channel(name="📝rules")
@@ -53,13 +56,24 @@ async def on_member_join(member):
 async def check_everyone(ctx):
     #await ctx.respond(content="Checking everyone...", ephemeral=True)
     await ctx.defer(ephemeral=True)
+    course_code, semester = info["course_code"], info["semester"]
 
     for member in get_channel(name="💁🏻admin-help").members:
         if member.guild_permissions.manage_guild:
             continue
+        elif member in vars.eee_guild.members:
+            await member.send(f"Welcome! You have been given the faculty role to the {course_code} {semester} Discord server! " + 
+                            "Please change your **__nickname__** for the server to `[Initial] Full Name` format, " + 
+                            "e.g., `[SHS] Shadman Shahriar`")
+            await member.add_roles(vars.faculty_role)
         else:
             welcome = get_channel(name="👏🏻welcome✌🏻")
             await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
+
+    for member in vars.faculty_role.members:
+        if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
+            nick_in_eee_guild = vars.eee_guild.get_member(member.id).display_name
+            await member.edit(nick=nick_in_eee_guild)
 
     for member in vars.student_role.members:
         student_id = int(re.search(literals.regex_student['id'], member.display_name).group(0))
@@ -69,6 +83,23 @@ async def check_everyone(ctx):
             _ = await verify_student(member, student_id)
 
     await ctx.followup.send(content="Done checking everyone!", ephemeral=True)
+
+
+
+@bot.slash_command(name = "check-faculties", description="Verifies unverified faculty nicknames (same as EEE guild) and assigns roles by routine.")
+@bot_admin_and_higher()
+async def check_faculties(ctx):
+    #await ctx.respond(content="Checking faculies...", ephemeral=True)
+    await ctx.defer(ephemeral=True)
+    for member in vars.faculty_role.members:
+        if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
+            nick_in_eee_guild = vars.eee_guild.get_member(member.id).display_name
+            await member.edit(nick=nick_in_eee_guild)
+        print(f"checking {member.display_name}")
+        await assign_sections(member)
+    await ctx.respond(content="Done checking faculties!", ephemeral=True)
+
+
 
 @bot.slash_command(name = "post-faculty-section", description="Posts a button for faculties to auto assign section roles.")
 @bot_admin_and_higher()
@@ -140,6 +171,21 @@ async def get_links(ctx):
     msg += f"Marks Sheet: <{get_link_from_sheet_id(marks_id)}>"
 
     await ctx.respond(content=msg, ephemeral=True)
+    
+
+
+@bot.slash_command(name = "post-as-bot", description = "Finds a message by id and posts a copy of it in the specified channel")
+@bot_admin_and_higher()
+async def post_as_bot(ctx, message_id, channel : discord.TextChannel):
+    message = await ctx.channel.fetch_message(message_id)
+    files = []
+    for attachment in message.attachments:
+        await attachment.save(attachment.filename)
+        files.append(discord.File(attachment.filename))
+    await channel.send(content=message.content, embeds=message.embeds, files=files)
+    await ctx.respond(f"Posted {message.jump_url} to {channel.mention}", ephemeral=True)
+
+    
 
 # mainly for debugging...
 # async def autocomplete_df_selection(ctx: discord.AutocompleteContext):
