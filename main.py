@@ -195,7 +195,7 @@ async def post_as_bot(ctx, message_id, channel: discord.TextChannel):
 
 
 async def get_marks_categories(ctx: discord.AutocompleteContext):
-    return vars.df_marks.columns.levels[0]
+    return vars.marks_categories
 
 
 @bot.slash_command(name="fetch-marks", description="Fetch marks of a particular student.")
