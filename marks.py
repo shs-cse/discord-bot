@@ -187,8 +187,8 @@ def init(marks_sheet_id):
                 to_sum.append(to_sum_best)
 
             # marks_new[category, subcategory, sheet_col][1] = ('= ' + ' + '.join(t.format(sheet_row=3) for t in to_sum)) if to_sum else ''
-            def formula(row): return ('= ' + ' + '.join(t.format(sheet_row=row.name+2)
-                                                        for t in to_sum)) if to_sum else None
+            # def formula(row): return ('= ' + ' + '.join(t.format(sheet_row=row.name+2)
+            #                                             for t in to_sum)) if to_sum else None
             # end_index = None if marks_new.columns.get_loc(
             #     (category, subcategory, sheet_col)) in to_add_col_num else 2
             if marks_new.columns.get_loc((category, subcategory, sheet_col)) in to_add_col_num:
@@ -196,6 +196,8 @@ def init(marks_sheet_id):
             else:
                 end_index = 2
             if to_sum:
+                def formula(row): return (
+                    '= ' + ' + '.join(t.format(sheet_row=row.name+2) for t in to_sum))
                 marks_new[category, subcategory, sheet_col][1:end_index] = marks_new.iloc[1:end_index].apply(
                     formula, axis=1)
 
