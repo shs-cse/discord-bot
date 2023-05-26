@@ -173,12 +173,10 @@ async def get_links(ctx):
     discord_link = info["invite"]
     enrolment_id = info["enrolment"]
     marks_ids = info["marks"]
-    n_sections = info["n_sections"]
 
     msg = f"Discord Invite Link: <{discord_link}>\n\n"
     msg += f"Enrolment Manager Sheet: <{get_link_from_sheet_id(enrolment_id)}>\n\n"
-    for i in range(n_sections):
-        sec = f"{i+1:02d}"
+    for sec in marks_ids:
         msg += f"Section {sec} Marks Sheet: <{get_link_from_sheet_id(marks_ids[sec])}>"
 
     await ctx.followup.send(content=msg, ephemeral=True)
