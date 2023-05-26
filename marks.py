@@ -16,7 +16,6 @@ def get_sheet(sheet_id, sheet_name):
 def check_tree(tree):
     # 0. starting category must be 'Summary'
     if tree.Category[0] != 'Summary':
-        print("Starting category must be 'Summary'")
         return False
     # 1. category regex
     if not tree.Category.str.match(r'^([^#~]+(#([0-9]+)?)?)*$').all():
@@ -96,12 +95,12 @@ def create_df_from_tree(tree):
 
 
 def extract_df_from_headers(headers):
-    print(f"Extracting from marks sheet... ")
+    print(f"Extracting from sheet... ")
     df = pd.DataFrame()
     parents = ['Summary']
     prev_depth = -1
     for header, weight in headers:
-        # print(f"{header}, ", end='')
+        print(f"{header}, ", end='')
         depth = header.count(INVISIBLE_SPACE)
         node = header.replace(INVISIBLE_SPACE, '')
         # pop if sibling or next parent
@@ -113,12 +112,13 @@ def extract_df_from_headers(headers):
         # always append working node for future children
         parents.append(node)
         prev_depth = depth
-    # print('\nExtracting complete.\n')
+    print('\nExtracting complete.\n')
     return df
 
 
-def init(marks_sheet_id):
+def main():
     # sheets
+    marks_sheet_id = '1kcxwBx41OHoy3y-4IjMRoi8jLlIOHxsldXb0dW077DE'
     info_sheet = get_sheet(marks_sheet_id, 'Info')
     marks_sheet = get_sheet(marks_sheet_id, 'Marks')
 
@@ -140,7 +140,6 @@ def init(marks_sheet_id):
     # to_rmv = df_headers_curr.columns[~df_headers_curr.columns.isin(df_headers_new.columns)]
     to_add_col_num = (~df_headers_new.columns.isin(
         df_headers_curr.columns)).nonzero()[0]
-    print(to_add_col_num)
 
     # print(to_add)
     # print(to_rmv)
@@ -149,8 +148,8 @@ def init(marks_sheet_id):
     marks_curr = marks_sheet.get_as_df(start='G1', value_render='FORMULA')
     marks_curr.columns = df_headers_curr.columns
 
-    marks_new = marks_curr.reindex(columns=df_headers_new.columns, copy=True,
-                                   fill_value='', index=range(marks_sheet.rows-1) if len(marks_curr) < 2 else None)
+    marks_new = marks_curr.reindex(columns=df_headers_new.columns, copy=True, fill_value='', index=[
+        0, 1] if len(marks_curr) < 2 else None)
     marks_new.iloc[0] = df_headers_new.iloc[1]
 
     marks_new.columns = pd.MultiIndex.from_tuples([(*col.split(' ► '), pygs.Address((0, i+7)).label)
@@ -187,17 +186,11 @@ def init(marks_sheet_id):
                 to_sum.append(to_sum_best)
 
             # marks_new[category, subcategory, sheet_col][1] = ('= ' + ' + '.join(t.format(sheet_row=3) for t in to_sum)) if to_sum else ''
-            # def formula(row): return ('= ' + ' + '.join(t.format(sheet_row=row.name+2)
-            #                                             for t in to_sum)) if to_sum else None
-            # end_index = None if marks_new.columns.get_loc(
-            #     (category, subcategory, sheet_col)) in to_add_col_num else 2
-            if marks_new.columns.get_loc((category, subcategory, sheet_col)) in to_add_col_num:
-                end_index = None
-            else:
-                end_index = 2
-            if to_sum:
-                def formula(row): return (
-                    '= ' + ' + '.join(t.format(sheet_row=row.name+2) for t in to_sum))
+            def formula(row): return ('= ' + ' + '.join(t.format(sheet_row=row.name+2)
+                                                        for t in to_sum)) if to_sum else None
+            end_index = None if marks_new.columns.get_loc(
+                (category, subcategory, sheet_col)) in to_add_col_num else 2
+            if formula:
                 marks_new[category, subcategory, sheet_col][1:end_index] = marks_new.iloc[1:end_index].apply(
                     formula, axis=1)
 
@@ -239,7 +232,4 @@ def init(marks_sheet_id):
 
 
 if __name__ == '__main__':
-    # remove hard coded value and ask for input
-    # marks_sheet_id = '1DHMw2vdguY7jt36XG5e4P9rULFYPNz-4K3s-4LxIPww'
-    marks_sheet_id = input('Spreadsheet key: ')
-    init(marks_sheet_id)
+    main()
