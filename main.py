@@ -138,7 +138,7 @@ async def revive_sec_access(ctx, message):
         await ctx.respond("failed to revive message.", ephemeral=True)
 
 
-@bot.slash_command(name="sync-sheets", description="Sync updates from enrolment sheet and marks sheet with bot.")
+@bot.slash_command(name="sync-sheets", description="Sync updates from enrolment sheet and marks sheets with bot.")
 @faculty_and_higher()
 async def sync_with_sheets(ctx):
     # await ctx.respond(content="Syncing with sheets...", ephemeral=True)
@@ -166,17 +166,20 @@ async def update_usis_before(ctx, message):
         await ctx.followup.send(content="No attachments found in the this message.", ephemeral=True)
 
 
-@bot.slash_command(name="get-links", description="Get the links for discord invite, enrolment and marks sheet")
+@bot.slash_command(name="get-links", description="Get the links for discord invite, enrolment and marks sheets")
 @faculty_and_higher()
 async def get_links(ctx):
     await ctx.defer(ephemeral=True)
     discord_link = info["invite"]
     enrolment_id = info["enrolment"]
-    marks_id = info["marks"]
+    marks_ids = info["marks"]
+    n_sections = info["n_sections"]
 
     msg = f"Discord Invite Link: <{discord_link}>\n\n"
     msg += f"Enrolment Manager Sheet: <{get_link_from_sheet_id(enrolment_id)}>\n\n"
-    msg += f"Marks Sheet: <{get_link_from_sheet_id(marks_id)}>"
+    for i in range(n_sections):
+        sec = f"{i+1:02d}"
+        msg += f"Section {sec} Marks Sheet: <{get_link_from_sheet_id(marks_ids[sec])}>"
 
     await ctx.followup.send(content=msg, ephemeral=True)
 
@@ -194,24 +197,25 @@ async def post_as_bot(ctx, message_id, channel: discord.TextChannel):
     await ctx.followup.send(f"Posted {message.jump_url} to {channel.mention}", ephemeral=True)
 
 
-async def get_marks_categories(ctx: discord.AutocompleteContext):
-    return vars.marks_categories
+# # need to change this parts. (old marks codes)
+# async def get_marks_categories(ctx: discord.AutocompleteContext):
+#     return vars.marks_categories
 
 
-@bot.slash_command(name="fetch-marks", description="Fetch marks of a particular student.")
-@faculty_and_higher()
-async def fetch_marks(ctx,
-                      member: discord.Member,
-                      category: discord.Option(str,
-                                               autocomplete=discord.utils.basic_autocomplete(get_marks_categories))):
-    await ctx.defer(ephemeral=True)
-    # check if member is a verified student
-    if member not in vars.student_role.members:
-        await ctx.followup.send(f"Can not retrieve marks since {member.mention} is not a verified student.")
-    else:
-        marks = vars.df_marks.loc[member.id].xs(category, level=1)[0]
-        marks_child = vars.df_marks.loc[member.id, category]
-        await ctx.followup.send(f"Marks for {member.mention}:\n{category}:{marks}\n{marks_child.to_dict()}")
+# @bot.slash_command(name="fetch-marks", description="Fetch marks of a particular student.")
+# @faculty_and_higher()
+# async def fetch_marks(ctx,
+#                       member: discord.Member,
+#                       category: discord.Option(str,
+#                                                autocomplete=discord.utils.basic_autocomplete(get_marks_categories))):
+#     await ctx.defer(ephemeral=True)
+#     # check if member is a verified student
+#     if member not in vars.student_role.members:
+#         await ctx.followup.send(f"Can not retrieve marks since {member.mention} is not a verified student.")
+#     else:
+#         marks = vars.df_marks.loc[member.id].xs(category, level=1)[0]
+#         marks_child = vars.df_marks.loc[member.id, category]
+#         await ctx.followup.send(f"Marks for {member.mention}:\n{category}:{marks}\n{marks_child.to_dict()}")
 
 
 # mainly for debugging...

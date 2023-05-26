@@ -6,7 +6,7 @@ from json_wrapper import update_json
 from discord_sec_manager import check_discord_sec, get_sec_role
 from pygsheets_wrapper import get_sheet_data, update_sheet_values, get_sheet
 import pandas as pd
-from marks import extract_df_from_headers
+# from marks import extract_df_from_headers # old code
 
 
 async def sync_init(bot, info):
@@ -39,23 +39,23 @@ async def sync_roles(info):
                           for ctype in literals.class_types}
 
 
-def get_marks_data(marks_sheet_id, sheet_name):
-    # sheets
-    marks_sheet = get_sheet(marks_sheet_id, sheet_name)
+# def get_marks_data(marks_sheet_id, sheet_name): # old code
+#     # sheets
+#     marks_sheet = get_sheet(marks_sheet_id, sheet_name)
 
-    headers = marks_sheet.get_as_df(start='A1',
-                                    end=(2, marks_sheet.cols),
-                                    has_header=False,
-                                    include_tailing_empty_rows=True)
-    headers = headers.transpose().values.tolist()
-    df_headers = extract_df_from_headers(headers)
+#     headers = marks_sheet.get_as_df(start='A1',
+#                                     end=(2, marks_sheet.cols),
+#                                     has_header=False,
+#                                     include_tailing_empty_rows=True)
+#     headers = headers.transpose().values.tolist()
+#     df_headers = extract_df_from_headers(headers)
 
-    df_headers.columns = pd.MultiIndex.from_tuples([col.split(' ► ')
-                                                    for col in df_headers.columns],
-                                                   names=['parent', 'child'])
-    marks = marks_sheet.get_as_df(start='A1')
-    marks.columns = df_headers.columns
-    return marks.set_index(('Summary', 'Discord ID'))
+#     df_headers.columns = pd.MultiIndex.from_tuples([col.split(' ► ')
+#                                                     for col in df_headers.columns],
+#                                                    names=['parent', 'child'])
+#     marks = marks_sheet.get_as_df(start='A1')
+#     marks.columns = df_headers.columns
+#     return marks.set_index(('Summary', 'Discord ID'))
 
 
 async def sync_sheets(info):
@@ -64,8 +64,9 @@ async def sync_sheets(info):
     vars.df_student = get_sheet_data(
         info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
-    vars.df_marks = get_marks_data(info["marks"], "Marks")
-    vars.marks_categories = vars.df_marks.columns.levels[0]
+    # vars.df_marks = get_marks_data(info["marks"], "Marks") # old code
+    # vars.marks_categories = vars.df_marks.columns.levels[0] # old code
+
     # push
     print("Pushing discord data to sheets...")
     get_sheet(info['enrolment'], 'Discord').clear('C2:H')

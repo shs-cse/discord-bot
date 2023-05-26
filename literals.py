@@ -27,5 +27,5 @@ regex_student = {
 template = {
     "guild": "https://discord.new/RVh3qBrGcsxA",
     "enrolment": "1HzCwb68D3L2sC4WFEBYajz4co5sQvtgSpp2fIf8aMqc",
-    "marks": "1VnFyMzAkPQGRhzHy77mEEHCdp3z8P_XI85-Bhjta8cM"
+    # "marks": "1VnFyMzAkPQGRhzHy77mEEHCdp3z8P_XI85-Bhjta8cM" # old code, needs replacement
 }
