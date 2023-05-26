@@ -25,7 +25,7 @@ async def on_ready():
     await sync_init(bot, info)
     await sync_roles(info)
     await sync_sheets(info)
-    print('Bot ready to go!!')
+    print('Bot ready to go!')
     await bot.change_presence(status=discord.Status.online)
 
 
@@ -169,6 +169,7 @@ async def update_usis_before(ctx, message):
 @bot.slash_command(name="get-links", description="Get the links for discord invite, enrolment and marks sheet")
 @faculty_and_higher()
 async def get_links(ctx):
+    await ctx.defer(ephemeral=True)
     discord_link = info["invite"]
     enrolment_id = info["enrolment"]
     marks_id = info["marks"]
@@ -177,19 +178,40 @@ async def get_links(ctx):
     msg += f"Enrolment Manager Sheet: <{get_link_from_sheet_id(enrolment_id)}>\n\n"
     msg += f"Marks Sheet: <{get_link_from_sheet_id(marks_id)}>"
 
-    await ctx.respond(content=msg, ephemeral=True)
+    await ctx.followup.send(content=msg, ephemeral=True)
 
 
 @bot.slash_command(name="post-as-bot", description="Finds a message by id and posts a copy of it in the specified channel")
 @bot_admin_and_higher()
 async def post_as_bot(ctx, message_id, channel: discord.TextChannel):
+    await ctx.defer(ephemeral=True)
     message = await ctx.channel.fetch_message(message_id)
     files = []
     for attachment in message.attachments:
         await attachment.save(attachment.filename)
         files.append(discord.File(attachment.filename))
     await channel.send(content=message.content, embeds=message.embeds, files=files)
-    await ctx.respond(f"Posted {message.jump_url} to {channel.mention}", ephemeral=True)
+    await ctx.followup.send(f"Posted {message.jump_url} to {channel.mention}", ephemeral=True)
+
+
+async def get_marks_categories(ctx: discord.AutocompleteContext):
+    return vars.marks_categories
+
+
+@bot.slash_command(name="fetch-marks", description="Fetch marks of a particular student.")
+@faculty_and_higher()
+async def fetch_marks(ctx,
+                      member: discord.Member,
+                      category: discord.Option(str,
+                                               autocomplete=discord.utils.basic_autocomplete(get_marks_categories))):
+    await ctx.defer(ephemeral=True)
+    # check if member is a verified student
+    if member not in vars.student_role.members:
+        await ctx.followup.send(f"Can not retrieve marks since {member.mention} is not a verified student.")
+    else:
+        marks = vars.df_marks.loc[member.id].xs(category, level=1)[0]
+        marks_child = vars.df_marks.loc[member.id, category]
+        await ctx.followup.send(f"Marks for {member.mention}:\n{category}:{marks}\n{marks_child.to_dict()}")
 
 
 # mainly for debugging...
