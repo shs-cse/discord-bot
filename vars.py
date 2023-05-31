@@ -15,4 +15,6 @@ all_sec_roles = {}
 
 df_student = None
 df_routine = None
-dict_df_marks = None
+df_marks_section = None
+dict_df_marks = {}
+dict_sec_marks_assessments = {}

@@ -1,6 +1,10 @@
 guild_eee_faculty = 815535685959811083
 
+max_depth_assessment_for_autocomplete = 5
+
 class_types = ['theory', 'lab']
+
+sec_marks_sheet_name_format = "Sec {:02d}"
 
 sec_category_name_format = {
     class_types[0]: "Section {:02d} Theory",
@@ -24,8 +28,18 @@ regex_student = {
     "name": r"\[[0-9]{8}\].*"
 }
 
+regex_file_folder_id = r"(?<=/)[\w_-]{15,}|^[\w_-]{15,}"
+
+# with space
+regex_marks_group = r"^\[\s*(\s*(\s*\[\s*([1-9][0-9]*\s*,\s*)*[1-9][0-9]*\s*\]\s*,\s*)*\[\s*([1-9][0-9]*\s*,\s*)*[1-9][0-9]*\s*\]\s*)?\]$"
+# r"^\[((\[([1-9][0-9]*,)*[1-9][0-9]*\],)*\[([1-9][0-9]*,)*[1-9][0-9]*\])?\]$" # without space
+
+
 template = {
     "guild": "https://discord.new/RVh3qBrGcsxA",
     "enrolment": "1HzCwb68D3L2sC4WFEBYajz4co5sQvtgSpp2fIf8aMqc",
-    # "marks": "1VnFyMzAkPQGRhzHy77mEEHCdp3z8P_XI85-Bhjta8cM" # old code, needs replacement
+    "marks": "1wfamZfPPXvYxHegBEngxonPtBmJBiFT5D0WAvwLchY0"
 }
+
+row_dict = {'Helper Text': 3, 'Parent Column': 8, 'Self Column': 13, 'Depth': 22,
+            'Total Marks': 4, 'Publish?': 0, 'Actual Marks?': 21}

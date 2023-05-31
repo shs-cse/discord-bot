@@ -1,3 +1,5 @@
+from discord.interactions import Interaction
+from discord.ui.item import Item
 import vars
 import literals
 import re
@@ -5,8 +7,9 @@ import discord  # upm package(py-cord)
 from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
 from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
-from utils_wrapper import get_channel, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
+from utils_wrapper import get_channel, get_member, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsView, assign_sections
+from marks import update_sec_marks, get_df_marks_by_discord_id
 
 
 # load json
@@ -195,7 +198,198 @@ async def post_as_bot(ctx, message_id, channel: discord.TextChannel):
     await ctx.followup.send(f"Posted {message.jump_url} to {channel.mention}", ephemeral=True)
 
 
-# # need to change this parts. (old marks codes)
+@bot.slash_command(name="update-section-marks", description="Update marks of the current channel")
+@faculty_and_higher()
+async def update_section_marks(ctx):
+    await ctx.defer(ephemeral=True)
+    category_name = ctx.channel.category.name  # only THEORY or LAB
+    try:
+        sec = int(re.search(r'^SECTION ([0-9]+)',
+                  category_name.upper()).group(1))
+        await update_sec_marks(info, sec, ctx)
+    except:
+        await ctx.followup.send(f"Message sent under {category_name} category."
+                                f"This channel is not under a theory/lab section. "
+                                f"Please post in a theory/lab channel.", ephemeral=True)
+
+
+class BreakdownSelectionView(discord.ui.View):
+    @discord.ui.select(
+        placeholder="Select within 30 seconds for further breakdowns",
+        options=[discord.SelectOption(
+            label="Question 1"), discord.SelectOption(label="Question 2")]
+    )
+    async def select_callback(self, select, interaction):
+        await interaction.response.send_message(f"Awesome! I'll show breakdown of {select.values[0]} too!", ephemeral=True)
+
+
+async def get_sec_assessment_list(ctx: discord.AutocompleteContext):
+    try:
+        student = get_member(ctx.options['student'])
+        if vars.student_role not in student.roles:
+            return []
+        sec = vars.df_marks_section.xs(
+            student.id, level='Discord ID')['Marks Section']
+        sec = sec.values[0]  # int value
+        # roles_of_student = set(get_member(ctx.options['student']).roles)
+        # if vars.student_role not in roles_of_student:
+        #     return []
+        # all_theory_roles = {
+        #     vars.sec_roles[sec][literals.class_types[0]] for sec in vars.sec_roles
+        # }
+        # (theory_sec_role, ) = roles_of_student & all_theory_roles
+        # sec = int(re.search(r'^sec-([0-9]+)',
+        #                     theory_sec_role.name.lower()).group(1))
+        return vars.dict_sec_marks_assessments[sec]
+    except:
+        return []
+
+
+def format_marks_in_embed(data, total):
+    if type(data) in [int, float]:
+        text = f"**[{data}](https://github.com/shs-cse/discord-bot)** _out of {total}_"
+    else:
+        text = "_Not attended_"
+    return text + "\n\u200b"
+
+
+def create_marks_embed(student, student_id, assessment, assessment_marks, assessment_children, final_total, final_grade, is_final_total_best_possible):
+    section = vars.df_student.at[student_id, 'Section']
+    name = vars.df_student.at[student_id, 'Name']
+    gsuite = vars.df_student.at[student_id, 'Gsuite']
+    if gsuite:
+        gsuite = f"[{gsuite}](https://mail.google.com/mail/u/0/#inbox?compose=new&to={gsuite})"
+    else:
+        gsuite = ""
+    if is_final_total_best_possible:
+        summary = f"At this point, the highest total score possible for you is {format_marks_in_embed(final_total,100)} marks (grade: **{final_grade}**)."
+    else:
+        summary = f"You have secured {format_marks_in_embed(final_total,100)} marks (_grade:_ **{final_grade}**) in this course."
+        ...
+    embed = discord.Embed(
+        title=f"{assessment} Marks",
+        description=f"_`       User: `_ {student.mention} \n"
+                    f"_` Student ID: `_ **{student_id}** \n"
+                    f"_`    Section: `_ **{section:02d}** \n"
+                    f"_`       Name: `_ **{name}** \n"
+                    f"_`     Gsuite: `_ {gsuite} \n"
+                    f"\u200b\n"
+                    f"{summary}\n"
+                    f"\u200b",
+        color=0xe74c3c
+    )
+    embed.add_field(
+        name=f"{assessment} Marks",
+        value=format_marks_in_embed(
+            assessment_marks[student_id], assessment_marks['Total Marks']
+        ),
+        inline=False
+    )
+    # embed.add_field(
+    #     name="Bonus Marks", value=f"{0} out of {2}\n\u200b", inline=True)
+    for child in assessment_children.index:
+        data = assessment_children.at[child, student_id]
+        total = assessment_children.at[child, 'Total Marks']
+        isnumeric = type(total) in [
+            int, float]
+        if isnumeric:
+            embed.add_field(
+                name=f"{child} Marks",
+                value=format_marks_in_embed(data, total),
+                inline=True
+            )
+        else:
+            embed.add_field(
+                name=child,
+                value=f"{data}\n\u200b",
+                inline=False
+            )
+    return embed
+
+
+@ bot.slash_command(name="fetch-marks", description="Fetch marks of a particular student.")
+@ faculty_and_higher()
+async def fetch_marks(ctx,
+                      student: discord.Member,
+                      assessment: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_sec_assessment_list))):
+    await ctx.defer(ephemeral=True)
+    if student not in vars.student_role.members:
+        await ctx.followup.send(f"Can not retrieve marks since {student.mention} is not a verified student.", ephemeral=True)
+    else:
+        student_id = int(
+            re.search(literals.regex_student['id'], student.display_name).group(0))
+        marks = get_df_marks_by_discord_id(student.id)
+        if marks is not None:
+            published_marks = marks[marks['Publish?']]
+            try:
+                assessment_marks = published_marks.loc[assessment]
+                assessment_col = published_marks.at[assessment, 'Self Column']
+                assessment_children = published_marks[published_marks['Parent Column']
+                                                      == assessment_col]
+                # total and grade
+                final_total = published_marks.at['Total', student_id]
+                final_grade = published_marks.at['Grade', student_id]
+                is_final_total_best_possible = not published_marks.at['Total',
+                                                                      'Actual Marks?']
+                # now prepare embed to show this result
+                embed = create_marks_embed(
+                    student, student_id, assessment, assessment_marks, assessment_children, final_total, final_grade, is_final_total_best_possible)
+                await ctx.followup.send(ephemeral=True, embed=embed)
+            except:
+                await ctx.followup.send(
+                    f"Marks for **{assessment}** has not yet been published.")
+        else:
+            await ctx.followup.send(f"No marks record found for {student.mention}")
+        # marks = str(marks.to_dict())
+        # embed = discord.Embed(
+        #     title=f"Marks for {member.nick}", description=f"Marks for {member.mention}", color=0x4c594b)
+        # await ctx.followup.send(ephemeral=True, embed=embed)
+        # num_of_fields = len(marks)//1024 + 1
+        # for i in range(num_of_fields):
+        #     embed = discord.embed(title="Output" if i == 0 else "\u200b",  # You can't have an empty name
+        #                           description=marks[i*1024:(i+1)*1024])
+        #     await ctx.followup.send(ephemeral=True, embed=embed)
+
+
+@bot.slash_command()
+@bot_admin_and_higher()
+async def test_embed(ctx,
+                     #  member: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_sec_student_list)),
+                     student: discord.Member,
+                     assessment: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_sec_assessment_list))):
+    await ctx.defer(ephemeral=True)
+    student_id = int(
+        re.search(literals.regex_student['id'], student.display_name).group(0))
+    section = vars.df_student.at[student_id, 'Section']
+    name = vars.df_student.at[student_id, 'Name']
+    gsuite = vars.df_student.at[student_id, 'Gsuite']
+    if gsuite:
+        gsuite = f"[{gsuite}](https://mail.google.com/mail/u/0/#inbox?compose=new&to={gsuite})"
+    else:
+        gsuite = ""
+    embed = discord.Embed(
+        title="Quiz 3 Marks",
+        description=f"_`       User: `_ {student.mention} \n"
+                    f"_` Student ID: `_ **{student_id}** \n"
+                    f"_`    Section: `_ **{section:02d}** \n"
+                    f"_`       Name: `_ **{name}** \n"
+                    f"_`     Gsuite: `_ {gsuite} \n"
+                    f"\u200b"
+    )
+    embed.add_field(
+        name="Marks", value=f"{16} out of {20}\n\u200b", inline=True)
+    embed.add_field(
+        name="Bonus Marks", value=f"{0} out of {2}\n\u200b", inline=True)
+    embed.add_field(
+        name="Comment (if any)", value="Need to study more\n\u200b", inline=False)
+    embed.add_field(
+        name="Question 1 Marks", value=f"{16} out of {20}\n\u200b", inline=True)
+    # embed.set_footer(
+    #     text="Select an option below to show further marks breakdown."
+    # )
+    await ctx.followup.send(ephemeral=True, embed=embed, view=BreakdownSelectionView(timeout=30))
+
+# # need to change this parts. (old code marks)
 # async def get_marks_categories(ctx: discord.AutocompleteContext):
 #     return vars.marks_categories
 
