@@ -97,7 +97,6 @@ async def check_everyone(ctx):
 @bot.slash_command(name="check-faculties", description="Verifies unverified faculty nicknames (same as EEE guild) and assigns roles by routine.")
 @bot_admin_and_higher()
 async def check_faculties(ctx):
-    # await ctx.respond(content="Checking faculies...", ephemeral=True)
     await ctx.defer(ephemeral=True)
     for member in vars.faculty_role.members:
         if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
@@ -106,7 +105,7 @@ async def check_faculties(ctx):
             await member.edit(nick=nick_in_eee_guild)
         print(f"checking {member.display_name}")
         await assign_sections(member)
-    await ctx.respond(content="Done checking faculties!", ephemeral=True)
+    await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
 
 
 @bot.slash_command(name="post-faculty-section", description="Posts a button for faculties to auto assign section roles.")

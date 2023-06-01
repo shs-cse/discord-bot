@@ -24,6 +24,10 @@ async def sync_init(bot, info):
 
 async def sync_roles(info):
     vars.faculty_role = get_role("faculty")
+    vars.thoery_or_lab_faculty_role[literals.class_types[0]] = get_role(
+        "theory-faculty")
+    vars.thoery_or_lab_faculty_role[literals.class_types[1]] = get_role(
+        "lab-faculty")
     vars.st_role = get_role("student-tutor")
     vars.admin_role = get_role("admin")
     vars.bot_admin_role = get_role("bot-admin")
