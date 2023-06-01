@@ -41,5 +41,5 @@ template = {
     "marks": "1wfamZfPPXvYxHegBEngxonPtBmJBiFT5D0WAvwLchY0"
 }
 
-row_dict = {'Helper Text': 3, 'Parent Column': 8, 'Self Column': 13, 'Depth': 22,
-            'Total Marks': 4, 'Publish?': 0, 'Actual Marks?': 21}
+info_row_dict = {'Helper Text': 4, 'Parent Column': 9, 'Self Column': 14, 'Depth': 23,
+                 'Total Marks': 5, 'Publish?': 1, 'Actual Marks?': 22, 'Children Columns': 17}
