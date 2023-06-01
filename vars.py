@@ -5,6 +5,7 @@ json_file = ""
 available_sections = []
 
 faculty_role = None
+thoery_or_lab_faculty_role = {}
 st_role = None
 admin_role = None
 bot_admin_role = None
