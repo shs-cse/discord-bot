@@ -9,7 +9,7 @@ from json_wrapper import check_and_load
 from verify_student_codes import VerificationButtonView, verify_student
 from utils_wrapper import get_channel, get_member, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsView, assign_sections
-from marks import update_sec_marks, get_df_marks_by_discord_id
+from marks import update_sec_marks, get_df_marks_by_student_id
 
 
 # load json
@@ -276,7 +276,7 @@ def create_marks_embed(student, student_id, assessment_name, assessment_marks, a
     return embed
 
 
-def create_breakdown_dropdown(student, student_id, published_marks, further_breakdown_dict):
+def create_breakdown_dropdown(student, student_id, marks, further_breakdown_dict):
     class BreakdownSelectionView(discord.ui.View):
         def __init__(self):
             self.timeout = 30
@@ -297,8 +297,8 @@ def create_breakdown_dropdown(student, student_id, published_marks, further_brea
             await interaction.response.defer(ephemeral=True)
             assessment_col = int(select.values[0])
             try:
-                assessment_name, assessment_marks, assessment_children = get_assessment_info(
-                    published_marks, assessment_col)
+                published_marks, assessment_name, assessment_marks, assessment_children = get_assessment_info(
+                    marks, assessment_col)
                 embed, view = create_embed_and_dropdown(
                     student, student_id, published_marks, assessment_name, assessment_marks, assessment_children)
                 if view:
@@ -311,14 +311,15 @@ def create_breakdown_dropdown(student, student_id, published_marks, further_brea
     return BreakdownSelectionView()
 
 
-def get_assessment_info(published_marks, assessment_col):
+def get_assessment_info(marks, assessment_col):
+    published_marks = marks[marks['Publish?']]
     # fetch assessment marks
     assessment_marks = published_marks[published_marks['Self Column']
                                        == assessment_col]
     assessment_name = assessment_marks.index[0]
     assessment_children = published_marks[published_marks['Parent Column']
                                           == assessment_col]
-    return assessment_name, assessment_marks, assessment_children
+    return published_marks, assessment_name, assessment_marks, assessment_children
 
 
 def create_embed_and_dropdown(student, student_id, published_marks, assessment_name, assessment_marks, assessment_children):
@@ -358,38 +359,85 @@ async def get_student_assessment_list(ctx: discord.AutocompleteContext):
         return []
 
 
+async def show_marks(student, assessment_col, ctx=None, interaction=None):
+    async def send_message(*args, **kwargs):
+        if ctx:
+            await ctx.followup.send(*args, **kwargs)
+        else:
+            await interaction.response.send_message(*args, **kwargs)
+    # actual logics
+    if student not in vars.student_role.members:
+        await send_message(
+            f"Can not retrieve marks since {student.mention} is not a verified student.", ephemeral=True)
+    else:
+        student_id = int(
+            re.search(literals.regex_student['id'], student.display_name).group(0))
+        marks = get_df_marks_by_student_id(student_id)
+        if marks is not None:
+            try:
+                published_marks, assessment_name, assessment_marks, assessment_children = get_assessment_info(
+                    marks, assessment_col)
+                embed, view = create_embed_and_dropdown(
+                    student, student_id, published_marks, assessment_name, assessment_marks, assessment_children)
+                if view:
+                    await send_message(ephemeral=True, embed=embed, view=view)
+                else:
+                    await send_message(ephemeral=True, embed=embed)
+            except:
+                await send_message(
+                    f"**{assessment_name}** Marks have not yet been published.", ephemeral=True)
+        else:
+            await send_message(f"No marks record found for {student.mention}", ephemeral=True)
+
+
 @ bot.slash_command(name="fetch-marks", description="Fetch marks of a particular student.")
 @ faculty_and_higher()
 async def fetch_marks(ctx,
                       student: discord.Member,
-                      assessment_col: discord.Option(
+                      assessment: discord.Option(
                           int,
                           autocomplete=discord.utils.basic_autocomplete(
                               get_student_assessment_list)
                       )):
     await ctx.defer(ephemeral=True)
-    if student not in vars.student_role.members:
-        await ctx.followup.send(f"Can not retrieve marks since {student.mention} is not a verified student.", ephemeral=True)
-    else:
-        student_id = int(
-            re.search(literals.regex_student['id'], student.display_name).group(0))
-        marks = get_df_marks_by_discord_id(student.id)
-        if marks is not None:
-            published_marks = marks[marks['Publish?']]
-            try:
-                assessment_name, assessment_marks, assessment_children = get_assessment_info(
-                    published_marks, assessment_col)
-                embed, view = create_embed_and_dropdown(
-                    student, student_id, published_marks, assessment_name, assessment_marks, assessment_children)
-                if view:
-                    await ctx.followup.send(ephemeral=True, embed=embed, view=view)
-                else:
-                    await ctx.followup.send(ephemeral=True, embed=embed)
-            except:
-                await ctx.followup.send(
-                    f"**{assessment_name}** Marks have not yet been published.", ephemeral=True)
-        else:
-            await ctx.followup.send(f"No marks record found for {student.mention}")
+    await show_marks(student, assessment, ctx=ctx)
+
+
+async def get_sec_assessment_list(ctx: discord.AutocompleteContext):
+    try:
+        category_name = ctx.interaction.channel.category.name
+        sec = int(re.search(r'^SECTION ([0-9]+)',
+                  category_name.upper()).group(1))
+        return vars.dict_sec_marks_assessments[sec]
+    except:
+        return []
+
+
+@ bot.slash_command(name="post-marks", description="Fetch marks of a particular student.")
+@ faculty_and_higher()
+async def post_marks(ctx,
+                     assessment: discord.Option(
+                         int,
+                         autocomplete=discord.utils.basic_autocomplete(
+                             get_sec_assessment_list)
+                     )):
+    await ctx.defer(ephemeral=True)
+    # build custom id from section and assessment
+    category_name = ctx.interaction.channel.category.name
+    sec = int(re.search(r'^SECTION ([0-9]+)',
+                        category_name.upper()).group(1))
+    marks = vars.dict_df_marks[sec][
+        list(literals.info_row_dict)
+    ]
+    _, assessment_name, _, _ = get_assessment_info(
+        marks, assessment)  # assessmet_col -> assessment_name
+    # create show marks button
+
+    class ShowMarksButtonView(discord.ui.View):
+        @discord.ui.button(label=f"{assessment_name} Marks", style=discord.ButtonStyle.primary)
+        async def button_callback(self, button, interaction):
+            await show_marks(interaction.user, assessment, interaction=interaction)
+    await ctx.followup.send('@everyone Press the button below to show marks.', view=ShowMarksButtonView(timeout=None))
 
     # @ bot.slash_command()
     # @ bot_admin_and_higher()
