@@ -111,13 +111,22 @@ async def check_faculties(ctx):
 @bot.slash_command(name="post-faculty-section", description="Posts a button for faculties to auto assign section roles.")
 @bot_admin_and_higher()
 async def post_faculty_section(ctx):
-    await ctx.respond(content="Click the button below to get access to your sections", view=AssignSectionsView())
+    await ctx.respond(content=literals.messages['faculty_assign'],
+                      view=AssignSectionsView())
 
 
 @bot.slash_command(name="post-verify", description="Posts a button for students to verify.")
 @bot_admin_and_higher()
 async def post_verify(ctx):
-    await ctx.respond("Click the button below to verify", view=VerificationButtonView())
+    await ctx.respond(literals.messages['student_verify'],
+                      view=VerificationButtonView())
+
+
+@bot.slash_command(name="post-rules", description="Posts general rules.")
+@bot_admin_and_higher()
+async def post_rules(ctx):
+    await ctx.respond(literals.messages['general_rules'],
+                      view=VerificationButtonView())
 
 
 @bot.message_command(name="Revive as 'Verify Me'")
