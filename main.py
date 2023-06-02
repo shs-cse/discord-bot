@@ -61,43 +61,56 @@ async def on_member_join(member):
 @bot.slash_command(name="check-everyone", description="DMs unverified students to complete verification & checks role of verified.")
 @bot_admin_and_higher()
 async def check_everyone(ctx):
-    # await ctx.respond(content="Checking everyone...", ephemeral=True)
     await ctx.defer(ephemeral=True)
     course_code, semester = info["course_code"], info["semester"]
 
     for member in get_channel(name="💁🏻admin-help").members:
         if member.guild_permissions.manage_guild:
             continue
-        elif member in vars.eee_guild.members:
+        print(f"Checking unverified member: {member.display_name}...", end=" ")
+        if member in vars.eee_guild.members:
             await member.send(f"Welcome! You have been given the faculty role to the {course_code} {semester} Discord server! " +
                               "Please change your **__nickname__** for the server to `[Initial] Full Name` format, " +
                               "e.g., `[SHS] Shadman Shahriar`")
             await member.add_roles(vars.faculty_role)
+            print("added as faculty.")
         else:
             welcome = get_channel(name="👏🏻welcome✌🏻")
-            await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
+            # await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
+            # print("sent dm to student.")
 
     for member in vars.faculty_role.members:
+        print(f"Checking faculty member: {member.display_name}...", end=" ")
         if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(
                 member.id).display_name
             await member.edit(nick=nick_in_eee_guild)
+            print("edited nickname.")
+        else:
+            print("ok.")
 
     for member in vars.student_role.members:
-        student_id = int(
-            re.search(literals.regex_student['id'], member.display_name).group(0))
-        if student_id not in vars.df_student.index:
+        print(f"Checking verified student: {member.display_name}...", end=" ")
+        try:
+            student_id = int(
+                re.search(literals.regex_student['id'], member.display_name).group(0))
+            if student_id not in vars.df_student.index:
+                await member.edit(roles=[], nick=None)
+                print("removed student.")
+            else:
+                await verify_student(member, student_id)
+                print("reverified.")
+        except:
             await member.edit(roles=[], nick=None)
-        else:
-            _ = await verify_student(member, student_id)
+            print("something went wrong, removed verification.")
 
     await ctx.followup.send(content="Done checking everyone!", ephemeral=True)
 
 
-@bot.slash_command(name="check-faculties", description="Verifies unverified faculty nicknames (same as EEE guild) and assigns roles by routine.")
+@bot.slash_command(name="check-faculties", description="Verifies unverified faculty members (nicknames same as EEE guild) and assigns roles by routine.")
 @bot_admin_and_higher()
 async def check_faculties(ctx):
-    # await ctx.defer(ephemeral=True)
+    await ctx.defer(ephemeral=True)
     for member in vars.faculty_role.members:
         if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(
@@ -108,9 +121,9 @@ async def check_faculties(ctx):
     await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
 
 
-@bot.slash_command(name="post-faculty-section", description="Posts a button for faculties to auto assign section roles.")
+@bot.slash_command(name="post-assign-faculty", description="Posts a button for faculties to auto assign section roles.")
 @bot_admin_and_higher()
-async def post_faculty_section(ctx):
+async def post_assign_faculty(ctx):
     await ctx.respond(content=literals.messages['faculty_assign'],
                       view=AssignSectionsView())
 
@@ -152,7 +165,6 @@ async def revive_sec_access(ctx, message):
 @bot.slash_command(name="sync-sheets", description="Sync updates from enrolment sheet and marks sheets with bot.")
 @faculty_and_higher()
 async def sync_with_sheets(ctx):
-    # await ctx.respond(content="Syncing with sheets...", ephemeral=True)
     await ctx.defer(ephemeral=True)
     await sync_sheets(info)
     await ctx.followup.send(content="Done syncing with sheets!", ephemeral=True)
@@ -185,36 +197,60 @@ async def get_links(ctx):
     enrolment_id = info["enrolment"]
     marks_ids = info["marks"]
 
-    msg = f"Discord Invite Link: <{discord_link}>\n\n"
-    msg += f"Enrolment Manager Sheet: <{get_link_from_sheet_id(enrolment_id)}>\n\n"
-    for sec in marks_ids:
-        msg += f"Section {sec} Marks Sheet: <{get_link_from_sheet_id(marks_ids[sec])}>\n"
+    embeds = []
+    # discord and enrolment
+    embed = discord.Embed(title="General Links")
+    embed.add_field(name="Discord",
+                    value=f"[Server Invite Link]({discord_link})")
+    embed.add_field(name="Enrolment",
+                    value=f"[Spreadsheet Link]({get_link_from_sheet_id(enrolment_id)})")
+    embeds.append(embed)
+    # section marks sheet links
+    sorted_marks_ids = sorted(marks_ids, key=lambda k: int(k))
+    chunk_size = 10
+    for i in range(0, len(sorted_marks_ids), chunk_size):
+        sections_in_chunk = sorted_marks_ids[i:i+chunk_size]
+        embed = discord.Embed(
+            title=f"Section {sections_in_chunk[0]} - {sections_in_chunk[-1]}"
+        )
+        for section in sections_in_chunk:
+            embed.add_field(
+                name=f"Sec {int(section):02d}",
+                value=f"[Marks Spreadsheet Link]({get_link_from_sheet_id(marks_ids[section])})"
+            )
+        embeds.append(embed)
 
-    await ctx.followup.send(content=msg, ephemeral=True)
+    await ctx.followup.send(embeds=embeds, ephemeral=True)
 
 
 @bot.slash_command(name="post-as-bot", description="Finds a message by id and posts a copy of it in the specified channel")
 @bot_admin_and_higher()
-async def post_as_bot(ctx, message_id, channel: discord.TextChannel):
+async def post_as_bot(ctx, message, channel: discord.Option(discord.TextChannel, required=False)):
     await ctx.defer(ephemeral=True)
-    message = await ctx.channel.fetch_message(message_id)
-    files = []
-    for attachment in message.attachments:
-        await attachment.save(attachment.filename)
-        files.append(discord.File(attachment.filename))
-    await channel.send(content=message.content, embeds=message.embeds, files=files)
-    await ctx.followup.send(f"Posted {message.jump_url} to {channel.mention}", ephemeral=True)
+    if not channel:
+        channel = ctx.channel
+    try:
+        message_obj = await ctx.channel.fetch_message(message)
+        files = []
+        for attachment in message_obj.attachments:
+            await attachment.save(attachment.filename)
+            files.append(discord.File(attachment.filename))
+        await channel.send(content=message_obj.content, embeds=message_obj.embeds, files=files)
+    except:
+        message_obj = await channel.send(content=message)
+    await ctx.followup.send(f"Posted {message_obj.jump_url} to {channel.mention}", ephemeral=True)
 
 
 @bot.slash_command(name="update-section-marks", description="Update marks of the current channel")
 @faculty_and_higher()
-async def update_section_marks(ctx):
+async def update_section_marks(ctx, section: discord.Option(int, required=False)):
     await ctx.defer(ephemeral=True)
     category_name = ctx.channel.category.name  # only THEORY or LAB
     try:
-        sec = int(re.search(r'^SECTION ([0-9]+)',
-                  category_name.upper()).group(1))
-        await update_sec_marks(info, sec, ctx)
+        if not section:
+            section = int(re.search(r'^SECTION ([0-9]+)',
+                                    category_name.upper()).group(1))
+        await update_sec_marks(info, section, ctx)
     except:
         await ctx.followup.send(f"Message sent under {category_name} category."
                                 f"This channel is not under a theory/lab section. "
@@ -445,7 +481,7 @@ async def post_marks(ctx,
         @discord.ui.button(label=f"{assessment_name} Marks", style=discord.ButtonStyle.primary)
         async def button_callback(self, button, interaction):
             await show_marks(interaction.user, assessment, interaction=interaction)
-    await ctx.followup.send('@everyone Press the button below to show marks.', view=ShowMarksButtonView(timeout=None))
+    await ctx.followup.send(f"{vars.student_role.mention} Press the button below to show marks.", view=ShowMarksButtonView(timeout=None))
 
     # @ bot.slash_command()
     # @ bot_admin_and_higher()

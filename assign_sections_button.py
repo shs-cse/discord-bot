@@ -29,24 +29,24 @@ class AssignSectionsButton(Button):
         await interaction.followup.send(embeds=[embed], ephemeral=True)
 
 
-async def assign_sections(user):
-    if vars.faculty_role not in user.roles:
+async def assign_sections(member):
+    if vars.faculty_role not in member.roles:
         embed = discord.Embed(
             title=":x: Error", description="You are not a faculty member", color=discord.Color.red())
         return embed
-    if not re.search(r"^\[[A-Z0-9]{3}\].*", user.display_name):
+    if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
         embed = discord.Embed(title=":x: Error", color=discord.Color.red())
         embed.description = "Your nickname is not set properly. Please change your nickname to `[INITIAL] Full Name` format first."
         return embed
     else:
         initial = re.search(
-            r"^\[([A-Z0-9]{3})\].*", user.display_name).group(1)
+            r"^\[([A-Z0-9]{3})\].*", member.display_name).group(1)
         # print(f"Assigning section roles to {initial}")
         # remove exisiting section role, if any
         section_roles = [
-            role for role in user.roles if role in vars.all_sec_roles]
-        await user.remove_roles(*section_roles)
-        await user.remove_roles(*vars.thoery_and_lab_faculty_roles.values())
+            role for role in member.roles if role in vars.all_sec_roles]
+        await member.remove_roles(*section_roles)
+        await member.remove_roles(*vars.thoery_and_lab_faculty_roles.values())
 
         embed = discord.Embed(
             title=":white_check_mark: Success", color=discord.Color.green())
@@ -62,8 +62,8 @@ async def assign_sections(user):
                 r.mention for r in ctype_roles)
             embed.add_field(
                 name=f"{ctype.title()} Sections", value=all_ctype_roles)
-            await user.add_roles(*ctype_roles)
+            await member.add_roles(*ctype_roles)
             if ctype_sections.any():
-                await user.add_roles(vars.thoery_and_lab_faculty_roles[ctype])
+                await member.add_roles(vars.thoery_and_lab_faculty_roles[ctype])
 
         return embed

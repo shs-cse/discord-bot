@@ -48,15 +48,14 @@ async def sync_sheets(info):
     print("Pulling data from sheets...")
     vars.df_student = get_sheet_data(
         info["enrolment"], "StudentList").set_index("Student ID")
-    # filter out empty rows
     vars.df_student = vars.df_student[vars.df_student.index != '']
+    vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
     # TODO: uncomment. commented for debugging.
     # for tracking which student's mark is in which section's sheet
     vars.df_marks_section = vars.df_student[['Discord ID']]
     vars.df_marks_section.insert(1, 'Marks Section', 0)  # new column
     vars.df_marks_section.set_index(
         [vars.df_marks_section.index, 'Discord ID'], inplace=True)
-    vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
     for sec in vars.available_sections:
         await update_sec_marks(info, sec)
 
