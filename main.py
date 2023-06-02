@@ -97,7 +97,7 @@ async def check_everyone(ctx):
 @bot.slash_command(name="check-faculties", description="Verifies unverified faculty nicknames (same as EEE guild) and assigns roles by routine.")
 @bot_admin_and_higher()
 async def check_faculties(ctx):
-    await ctx.defer(ephemeral=True)
+    # await ctx.defer(ephemeral=True)
     for member in vars.faculty_role.members:
         if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(

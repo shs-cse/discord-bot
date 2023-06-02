@@ -41,10 +41,12 @@ async def assign_sections(user):
     else:
         initial = re.search(
             r"^\[([A-Z0-9]{3})\].*", user.display_name).group(1)
+        # print(f"Assigning section roles to {initial}")
         # remove exisiting section role, if any
         section_roles = [
             role for role in user.roles if role in vars.all_sec_roles]
         await user.remove_roles(*section_roles)
+        await user.remove_roles(*vars.thoery_and_lab_faculty_roles.values())
 
         embed = discord.Embed(
             title=":white_check_mark: Success", color=discord.Color.green())
@@ -61,6 +63,7 @@ async def assign_sections(user):
             embed.add_field(
                 name=f"{ctype.title()} Sections", value=all_ctype_roles)
             await user.add_roles(*ctype_roles)
-            await user.add_roles(vars.thoery_or_lab_faculty_role[ctype])
+            if ctype_sections.any():
+                await user.add_roles(vars.thoery_and_lab_faculty_roles[ctype])
 
         return embed
