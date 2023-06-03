@@ -68,7 +68,7 @@ async def update_sec_marks(info, sec, ctx=None):
         if parent.empty:
             option_str = assessment
         else:
-            option_str = assessment + '\u2000' * 5 + "( ← " + parent[0] + ")"
+            option_str = assessment + '\u2000' * 5 + " ← " + parent[0]
         vars.dict_sec_marks_assessments[sec].append(
             discord.OptionChoice(
                 name=option_str,

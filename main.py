@@ -314,9 +314,13 @@ async def update_section_marks(ctx, section: discord.Option(int, required=False,
                                 f"Please post in a theory/lab channel.", ephemeral=True)
 
 
+def format_as_dummy_link(text):
+    return f"**[{text}](https://github.com/shs-cse/discord-bot)**"
+
+
 def format_marks_in_embed(data, total):
     if type(data) in [int, float]:
-        return f"**[{data}](https://github.com/shs-cse/discord-bot)** _out of {total}_"
+        return f"{format_as_dummy_link(data)} _out of {total}_"
     else:
         return "_Not attended_"
 
@@ -331,9 +335,9 @@ def create_marks_embed(student, student_id, assessment_name, assessment_marks, a
         gsuite = ""
     # show actual or best possible total marks and grade
     if is_final_total_best_possible:
-        summary = f"At this point, the highest total score possible for you is {format_marks_in_embed(final_total,100)} marks (grade: **{final_grade}**)."
+        summary = f"At this point, the highest total score possible for you is {format_marks_in_embed(final_total,100)} marks (grade: {format_as_dummy_link(final_grade)})."
     else:
-        summary = f"You have secured {format_marks_in_embed(final_total,100)} marks (_grade:_ **{final_grade}**) in this course."
+        summary = f"You have secured {format_marks_in_embed(final_total,100)} marks (_grade:_ {format_as_dummy_link(final_grade)}) in this course."
     # create embed
     embed = discord.Embed(
         title=f"{assessment_name} Marks",
