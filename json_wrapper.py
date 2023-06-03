@@ -40,6 +40,7 @@ def check_and_load(file):
               )
         info['enrolment'] = sheet_id
         update_json(info, file)
+        routine_sheet.spreadsheet.share('', role='reader', type='anyone')
 
     # marks sheets check
     # grouping
@@ -182,6 +183,9 @@ def build_edit_buffer(sheet, info):
         }
     elif sheet == 'marks':
         return {
+            "Meta": {
+                'K2': info['enrolment']
+            }
         }
 
 
