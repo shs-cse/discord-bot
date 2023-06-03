@@ -51,13 +51,13 @@ async def sync_sheets(info):
     vars.df_student = vars.df_student[vars.df_student.index != '']
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
     # TODO: uncomment. commented for debugging.
-    # for tracking which student's mark is in which section's sheet
-    vars.df_marks_section = vars.df_student[['Discord ID']]
-    vars.df_marks_section.insert(1, 'Marks Section', 0)  # new column
-    vars.df_marks_section.set_index(
-        [vars.df_marks_section.index, 'Discord ID'], inplace=True)
-    for sec in vars.available_sections:
-        await update_sec_marks(info, sec)
+    # # for tracking which student's mark is in which section's sheet
+    # vars.df_marks_section = vars.df_student[['Discord ID']]
+    # vars.df_marks_section.insert(1, 'Marks Section', 0)  # new column
+    # vars.df_marks_section.set_index(
+    #     [vars.df_marks_section.index, 'Discord ID'], inplace=True)
+    # for sec in vars.available_sections:
+    #     await update_sec_marks(info, sec)
 
     # push
     print("Pushing discord data to sheets...")

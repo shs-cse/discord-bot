@@ -8,7 +8,7 @@ from discord.ui import Button, View  # upm package(py-cord)
 # ui elements
 
 
-class AssignSectionsView(View):
+class AssignSectionsButtonView(View):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.timeout = None

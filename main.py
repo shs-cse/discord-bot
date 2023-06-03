@@ -1,14 +1,17 @@
+from discord.emoji import Emoji
+from discord.enums import ButtonStyle
 from discord.interactions import Interaction
+from discord.partial_emoji import PartialEmoji
 from discord.ui.item import Item
 import vars
 import literals
 import re
 import discord  # upm package(py-cord)
 from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
-from json_wrapper import check_and_load
+from json_wrapper import check_and_load, update_json
 from verify_student_codes import VerificationButtonView, verify_student
 from utils_wrapper import get_channel, get_member, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
-from assign_sections_button import AssignSectionsView, assign_sections
+from assign_sections_button import AssignSectionsButtonView, assign_sections
 from marks import update_sec_marks, get_df_marks_by_student_id
 
 
@@ -23,11 +26,43 @@ bot = discord.Bot(intents=intents, debug_guilds=[
                   info['guild_id']], status=discord.Status.idle)
 
 
+def log_message_view(info, message: discord.Message, button_view, *args):
+    channel_id = message.channel.id
+    info['buttons'][str(message.id)] = {
+        'channel_id': channel_id,
+        'view_class': button_view.__class__.__name__,
+        'view_args': [*args]
+    }
+    update_json(info, vars.json_file)
+
+
+async def revive_buttons(info):
+    for message_id, params_dict in info['buttons'].items():
+        try:
+            # get channel or thread by id
+            channel = discord.utils.get(
+                vars.guild.threads + vars.guild.channels,
+                id=params_dict['channel_id'])
+            # get message in channel or thread
+            message = await channel.fetch_message(int(message_id))
+            view_class = params_dict['view_class']
+            view_args = params_dict['view_args']
+            button_view = globals()[view_class](*view_args)
+            await message.edit(view=button_view)
+            # TODO: send message to #bot-config to keep the bot alive
+            print(
+                f"Revived message: channel_id='{channel.id}' ▶️ {message_id=}.")
+        except:
+            print(
+                f"Something went wrong. Couldn't revive message: channel_id='{channel.id}' ▶️ {message_id=}.")
+
+
 @bot.event
 async def on_ready():
     await sync_init(bot, info)
     await sync_roles(info)
     await sync_sheets(info)
+    await revive_buttons(info)
     print('Bot ready to go!')
     await bot.change_presence(status=discord.Status.online)
 
@@ -41,20 +76,25 @@ async def on_member_join(member):
     elif member in vars.eee_guild.members:
         nick_in_eee_guild = vars.eee_guild.get_member(member.id).nick
         await member.edit(nick=nick_in_eee_guild)
-        await member.send(f"Welcome! You have been given the faculty role to the {course_code} {semester} Discord server! " +
-                          "Please change your **__nickname__** for the server to `[Initial] Full Name` format, " +
-                          "e.g., `[ABA] Abid Abrar`")
         await member.add_roles(vars.faculty_role)
         await assign_sections(member)
+        await member.send(
+            literals.messages['welcome_faculty'].format(
+                course_code=course_code,
+                semester=semester
+            )
+        )
     # most likely student
     else:
         rules = get_channel(name="📝rules")
         welcome = get_channel(name="👏🏻welcome✌🏻")
 
-        welcome_msg = f"Welcome to the {course_code} {semester} Discord server! "
-        welcome_msg += f"Please verify yourself by visiting {welcome.mention} and read the rules in {rules.mention}. "
-        welcome_msg += f"Otherwise, you will not be able to access the server"
-
+        welcome_msg = literals.messages['welcome_student'].format(
+            course_code=course_code,
+            semester=semester,
+            welcome_mention=welcome.mention,
+            rules_mention=rules.mention
+        )
         await member.send(welcome_msg)
 
 
@@ -69,15 +109,18 @@ async def check_everyone(ctx):
             continue
         print(f"Checking unverified member: {member.display_name}...", end=" ")
         if member in vars.eee_guild.members:
-            await member.send(f"Welcome! You have been given the faculty role to the {course_code} {semester} Discord server! " +
-                              "Please change your **__nickname__** for the server to `[Initial] Full Name` format, " +
-                              "e.g., `[SHS] Shadman Shahriar`")
+            await member.send(
+                literals.messages['welcome_faculty'].format(
+                    course_code=course_code,
+                    semester=semester
+                )
+            )
             await member.add_roles(vars.faculty_role)
             print("added as faculty.")
         else:
             welcome = get_channel(name="👏🏻welcome✌🏻")
-            # await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
-            # print("sent dm to student.")
+            await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
+            print("sent dm to student.")
 
     for member in vars.faculty_role.members:
         print(f"Checking faculty member: {member.display_name}...", end=" ")
@@ -124,29 +167,42 @@ async def check_faculties(ctx):
 @bot.slash_command(name="post-assign-faculty", description="Posts a button for faculties to auto assign section roles.")
 @bot_admin_and_higher()
 async def post_assign_faculty(ctx):
-    await ctx.respond(content=literals.messages['faculty_assign'],
-                      view=AssignSectionsView())
+    await ctx.defer(ephemeral=True)
+    button_view = AssignSectionsButtonView()
+    message = await ctx.channel.send(content=literals.messages['faculty_assign'],
+                                     view=button_view)
+    log_message_view(info, message, button_view)
+    await ctx.followup.send(f"Added a button for assigning faculties with this message: {message.jump_url}")
 
 
 @bot.slash_command(name="post-verify", description="Posts a button for students to verify.")
 @bot_admin_and_higher()
 async def post_verify(ctx):
-    await ctx.respond(literals.messages['student_verify'],
-                      view=VerificationButtonView())
+    await ctx.defer(ephemeral=True)
+    button_view = VerificationButtonView()
+    message = await ctx.channel.send(literals.messages['student_verify'],
+                                     view=button_view)
+    log_message_view(info, message, button_view)
+    await ctx.followup.send(f"Added a button for verification with this message: {message.jump_url}")
 
 
 @bot.slash_command(name="post-rules", description="Posts general rules.")
 @bot_admin_and_higher()
 async def post_rules(ctx):
-    await ctx.respond(literals.messages['general_rules'],
-                      view=VerificationButtonView())
+    button_view = VerificationButtonView()
+    message = await ctx.channel.send(literals.messages['general_rules'],
+                                     view=button_view)
+    log_message_view(info, message, button_view)
+    await ctx.followup.send(f"Added a button for verification with this message: {message.jump_url}")
 
 
 @bot.message_command(name="Revive as 'Verify Me'")
 @bot_admin_and_higher()
 async def revive_verify(ctx, message):
     try:
-        await message.edit(view=VerificationButtonView())
+        button_view = VerificationButtonView()
+        message = await message.edit(view=button_view)
+        log_message_view(info, message, button_view)
         await ctx.respond(f"message revived as 'verify me': {message.jump_url}", ephemeral=True, delete_after=3)
     except:
         await ctx.respond("failed to revive message.", ephemeral=True)
@@ -156,7 +212,9 @@ async def revive_verify(ctx, message):
 @bot_admin_and_higher()
 async def revive_sec_access(ctx, message):
     try:
-        await message.edit(view=AssignSectionsView())
+        button_view = AssignSectionsButtonView()
+        message = await message.edit(view=button_view)
+        log_message_view(info, message, button_view)
         await ctx.respond(f"message revived as 'generate section access': {message.jump_url}", ephemeral=True, delete_after=3)
     except:
         await ctx.respond("failed to revive message.", ephemeral=True)
@@ -197,30 +255,29 @@ async def get_links(ctx):
     enrolment_id = info["enrolment"]
     marks_ids = info["marks"]
 
-    embeds = []
     # discord and enrolment
-    embed = discord.Embed(title="General Links")
+    embed = discord.Embed(title="General Links",
+                          color=0x3498db)
     embed.add_field(name="Discord",
-                    value=f"[Server Invite Link]({discord_link})")
-    embed.add_field(name="Enrolment",
-                    value=f"[Spreadsheet Link]({get_link_from_sheet_id(enrolment_id)})")
-    embeds.append(embed)
-    # section marks sheet links
-    sorted_marks_ids = sorted(marks_ids, key=lambda k: int(k))
-    chunk_size = 10
-    for i in range(0, len(sorted_marks_ids), chunk_size):
-        sections_in_chunk = sorted_marks_ids[i:i+chunk_size]
-        embed = discord.Embed(
-            title=f"Section {sections_in_chunk[0]} - {sections_in_chunk[-1]}"
-        )
-        for section in sections_in_chunk:
-            embed.add_field(
-                name=f"Sec {int(section):02d}",
-                value=f"[Marks Spreadsheet Link]({get_link_from_sheet_id(marks_ids[section])})"
-            )
-        embeds.append(embed)
+                    value=f"**[Server Invite Link]({discord_link})**\n\u200b",
+                    inline=False)
+    embed.add_field(name="Enrolment Sheet",
+                    value=f"**[Spreadsheet Link]({get_link_from_sheet_id(enrolment_id)})**\n\u200b",
+                    inline=False)
 
-    await ctx.followup.send(embeds=embeds, ephemeral=True)
+    cols = 4
+    sorted_marks_ids = sorted(marks_ids, key=lambda k: int(k))
+    for i in range(0, len(sorted_marks_ids), cols):
+        marks_links = "\u200b\n" if i == 0 else ""
+        sections_in_row = sorted_marks_ids[i:i+cols]
+        for section in sections_in_row:
+            marks_links += f"**[Sec {int(section):02d}]({get_link_from_sheet_id(marks_ids[section])})**"
+            marks_links += '\u2000' * 6
+        embed.add_field(name="Marks Sheets" if i == 0 else "\u200b",
+                        value=marks_links,
+                        inline=False)
+
+    await ctx.followup.send(embed=embed, ephemeral=True)
 
 
 @bot.slash_command(name="post-as-bot", description="Finds a message by id and posts a copy of it in the specified channel")
@@ -243,7 +300,7 @@ async def post_as_bot(ctx, message, channel: discord.Option(discord.TextChannel,
 
 @bot.slash_command(name="update-section-marks", description="Update marks of the current channel")
 @faculty_and_higher()
-async def update_section_marks(ctx, section: discord.Option(int, required=False)):
+async def update_section_marks(ctx, section: discord.Option(int, required=False, description="Integer. Enter the section whose marks you want to update.")):
     await ctx.defer(ephemeral=True)
     category_name = ctx.channel.category.name  # only THEORY or LAB
     try:
@@ -403,7 +460,7 @@ async def get_student_assessment_list(ctx: discord.AutocompleteContext):
         return []
 
 
-async def show_marks(student, assessment_col, ctx=None, interaction=None):
+async def show_marks(student, assessment_col, *, ctx=None, interaction=None):
     async def send_message(*args, **kwargs):
         if ctx:
             await ctx.followup.send(*args, **kwargs)
@@ -457,6 +514,30 @@ async def get_sec_assessment_list(ctx: discord.AutocompleteContext):
         return []
 
 
+class ShowMarksButton(discord.ui.Button):
+    def __init__(self, assessment_name, assessment_col, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.assessment_name = assessment_name
+        self.assessment_col = assessment_col
+        self.label = f"{assessment_name} Marks"
+        self.style = discord.ButtonStyle.red
+
+    async def callback(self, interaction: Interaction):
+        user = interaction.user
+        await show_marks(user, self.assessment_col, interaction=interaction)
+
+
+class ShowMarksButtonView(discord.ui.View):
+    def __init__(self, assessment_name, assessment_col, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.timeout = None
+        self.add_item(ShowMarksButton(assessment_name, assessment_col))
+
+    # @discord.ui.button(label=f"{assessment_name} Marks", style=discord.ButtonStyle.primary)
+    # async def button_callback(self, button, interaction):
+    #     await show_marks(interaction.user, assessment, interaction=interaction)
+
+
 @ bot.slash_command(name="post-marks", description="Fetch marks of a particular student.")
 @ faculty_and_higher()
 async def post_marks(ctx,
@@ -467,7 +548,8 @@ async def post_marks(ctx,
                      )):
     await ctx.defer(ephemeral=True)
     # build custom id from section and assessment
-    category_name = ctx.interaction.channel.category.name
+    channel = ctx.interaction.channel
+    category_name = channel.category.name
     sec = int(re.search(r'^SECTION ([0-9]+)',
                         category_name.upper()).group(1))
     marks = vars.dict_df_marks[sec][
@@ -476,12 +558,12 @@ async def post_marks(ctx,
     _, assessment_name, _, _ = get_assessment_info(
         marks, assessment)  # assessmet_col -> assessment_name
     # create show marks button
-
-    class ShowMarksButtonView(discord.ui.View):
-        @discord.ui.button(label=f"{assessment_name} Marks", style=discord.ButtonStyle.primary)
-        async def button_callback(self, button, interaction):
-            await show_marks(interaction.user, assessment, interaction=interaction)
-    await ctx.followup.send(f"{vars.student_role.mention} Press the button below to show marks.", view=ShowMarksButtonView(timeout=None))
+    # TODO: change vars.student_role.id -> vars.student_role.mention
+    button_view = ShowMarksButtonView(assessment_name, assessment)
+    message = await channel.send(f"{vars.student_role.id} Press the button below to show marks.",
+                                 view=button_view)
+    log_message_view(info, message, button_view, assessment_name, assessment)
+    await ctx.followup.send(f"Added a button for {assessment_name} marks with this message: {message.jump_url}")
 
     # @ bot.slash_command()
     # @ bot_admin_and_higher()

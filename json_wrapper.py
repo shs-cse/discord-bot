@@ -92,7 +92,7 @@ def check_and_load(file):
                 # print(
                 #     f"Marks sheet for section {sec} is grouped with section {map_to_sec}. using that spreadsheet...")
                 print(
-                    f"Sec {sec} ▶️ Marks ▶️ Spreadsheet ▶️ Using section {map_to_sec}'s spreadsheet", end=' ')
+                    f"Sec {sec} ▶️ Marks ▶️ Spreadsheet ▶️ Using Sec {map_to_sec}'s spreadsheet", end=' ')
                 sheet_id = info['marks'][str(map_to_sec)]
             info['marks'][str(sec)] = sheet_id
             update_json(info, file)
@@ -107,7 +107,7 @@ def check_and_load(file):
                     # print(
                     #     f"Marks spreadsheet for section {sec} already exists in the same spreadsheet as {map_to_sec}.")
                     print(
-                        f"Sec {sec} ▶️ Marks ▶️ Spreadsheet ▶️ Using section {map_to_sec}'s spreadsheet", end=' ')
+                        f"Sec {sec} ▶️ Marks ▶️ Spreadsheet ▶️ Using Sec {map_to_sec}'s spreadsheet", end=' ')
                 else:
                     # print(
                     #     f"Marks spreadsheet for section {sec} already exists. Can't group with {map_to_sec}.")
