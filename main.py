@@ -197,6 +197,14 @@ async def post_rules(ctx):
     await ctx.followup.send(f"Added a button for verification with this message: {message.jump_url}")
 
 
+@bot.slash_command(name="revive-all-buttons", description="Posts general rules.")
+@faculty_and_higher()
+async def revive_all_buttons(ctx):
+    await ctx.defer(ephemeral=True)
+    await revive_buttons(info)
+    await ctx.followup.send("Revived all buttons.", ephemeral=True)
+
+
 @bot.message_command(name="Revive as 'Verify Me'")
 @bot_admin_and_higher()
 async def revive_verify(ctx, message):
