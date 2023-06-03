@@ -40,9 +40,10 @@ async def revive_buttons(info):
     for message_id, params_dict in info['buttons'].items():
         try:
             # get channel or thread by id
+            channel_id = params_dict['channel_id']
             channel = discord.utils.get(
                 vars.guild.threads + vars.guild.channels,
-                id=params_dict['channel_id'])
+                id=channel_id)
             # get message in channel or thread
             message = await channel.fetch_message(int(message_id))
             view_class = params_dict['view_class']
@@ -53,8 +54,8 @@ async def revive_buttons(info):
             print(
                 f"Revived message: channel_id='{channel.id}' ▶️ {message_id=}.")
         except:
-            print(
-                f"Something went wrong. Couldn't revive message: channel_id='{channel.id}' ▶️ {message_id=}.")
+            print(f"Something went wrong. Couldn't revive message: "
+                  f"channel_id='{channel_id}' ▶️ {message_id=}.")
 
 
 @bot.event
