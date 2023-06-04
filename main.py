@@ -573,7 +573,7 @@ async def post_marks(ctx,
     # create show marks button
     # TODO: change vars.student_role.id -> vars.student_role.mention
     button_view = ShowMarksButtonView(assessment_name, assessment)
-    message = await channel.send(f"{vars.student_role.id} Press the button below to show marks.",
+    message = await channel.send(f"{vars.student_role.mention} Press the button below to show marks.",
                                  view=button_view)
     log_message_view(info, message, button_view, assessment_name, assessment)
     await ctx.followup.send(f"Added a button for {assessment_name} marks with this message: {message.jump_url}")
