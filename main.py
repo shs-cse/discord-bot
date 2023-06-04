@@ -190,6 +190,7 @@ async def post_verify(ctx):
 @bot.slash_command(name="post-rules", description="Posts general rules.")
 @bot_admin_and_higher()
 async def post_rules(ctx):
+    await ctx.defer(ephemeral=True)
     button_view = VerificationButtonView()
     message = await ctx.channel.send(literals.messages['general_rules'],
                                      view=button_view)
