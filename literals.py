@@ -45,7 +45,7 @@ info_row_dict = {'Helper Text': 4, 'Parent Column': 9, 'Self Column': 14, 'Depth
                  'Total Marks': 5, 'Publish?': 1, 'Actual Marks?': 22, 'Children Columns': 17}
 
 messages = {
-    'general_rules':
+    'old_rules':
         ":star2: **__General Rules__**:star2:"
         ":small_blue_diamond: Be respectful towards the faculties and your classmates. Note that you can be friendly while being respectful. "
         "\n\n"
@@ -60,6 +60,15 @@ messages = {
         "**Any form of cheating/copying will be severely punished**"
         "\n\n"
         "Leave any type of cheating group you have joined. \"I wasn't active\", \"My notifications were turned off\" - these types of excuses won't be accepted.",
+
+    'short_rules':
+        ":star2: **__General Rules__** :star2:"
+        "\n\n"
+        ":small_blue_diamond:  Be respectful towards the faculties and your classmates. Note that you can be friendly while being respectful."
+        "\n\n"
+        ":small_blue_diamond: **Any sort of bullying and sexual harassment will be severely punished.**"
+        "\n\n"
+        ":small_blue_diamond: **Any form of cheating/copying will be severely punished.**",
 
     'faculty_assign':
         "@faculty Your nickname and section access should be assigned on joining this server (pulled from `Electrical Courses Team` server). ***If not set automatically:***"

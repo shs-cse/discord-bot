@@ -205,7 +205,7 @@ async def post_verify(ctx):
 async def post_rules(ctx):
     await ctx.defer(ephemeral=True)
     button_view = VerificationButtonView()
-    message = await ctx.channel.send(literals.messages['general_rules'],
+    message = await ctx.channel.send(literals.messages['short_rules'],
                                      view=button_view)
     log_message_view(info, message, button_view)
     await ctx.followup.send(f"Added a button for verification with this message: {message.jump_url}")
