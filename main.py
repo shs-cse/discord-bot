@@ -144,6 +144,7 @@ async def check_everyone(ctx):
             print("edited nickname.")
         else:
             print("ok.")
+        await assign_sections(member)
 
     for member in vars.student_role.members:
         print(f"Checking verified student: {member.display_name}...", end=" ")
@@ -168,11 +169,11 @@ async def check_everyone(ctx):
 async def check_faculties(ctx):
     await ctx.defer(ephemeral=True)
     for member in vars.faculty_role.members:
+        print(f"checking {member.display_name}")
         if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(
                 member.id).display_name
             await member.edit(nick=nick_in_eee_guild)
-        print(f"checking {member.display_name}")
         await assign_sections(member)
     await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
 
