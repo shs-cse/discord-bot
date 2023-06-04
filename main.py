@@ -79,12 +79,15 @@ async def on_member_join(member):
         await member.edit(nick=nick_in_eee_guild)
         await member.add_roles(vars.faculty_role)
         await assign_sections(member)
-        await member.send(
-            literals.messages['welcome_faculty'].format(
-                course_code=course_code,
-                semester=semester
+        try:
+            await member.send(
+                literals.messages['welcome_faculty'].format(
+                    course_code=course_code,
+                    semester=semester
+                )
             )
-        )
+        except:
+            print(f"Could not send message to {member.display_name}.")
     # most likely student
     else:
         rules = get_channel(name="📝rules")
@@ -96,7 +99,10 @@ async def on_member_join(member):
             welcome_mention=welcome.mention,
             rules_mention=rules.mention
         )
-        await member.send(welcome_msg)
+        try:
+            await member.send(welcome_msg)
+        except:
+            print(f"Could not send message to {member.display_name}.")
 
 
 @bot.slash_command(name="check-everyone", description="DMs unverified students to complete verification & checks role of verified.")
@@ -110,18 +116,24 @@ async def check_everyone(ctx):
             continue
         print(f"Checking unverified member: {member.display_name}...", end=" ")
         if member in vars.eee_guild.members:
-            await member.send(
-                literals.messages['welcome_faculty'].format(
-                    course_code=course_code,
-                    semester=semester
-                )
-            )
             await member.add_roles(vars.faculty_role)
             print("added as faculty.")
+            try:  # user might turn off dm
+                await member.send(
+                    literals.messages['welcome_faculty'].format(
+                        course_code=course_code,
+                        semester=semester
+                    )
+                )
+            except:
+                print("Could not send message to member.")
         else:
             welcome = get_channel(name="👏🏻welcome✌🏻")
-            await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
-            print("sent dm to student.")
+            try:
+                await member.send(f"Please verify yourself by visiting the {welcome.mention} channel")
+                print("sent dm to student.")
+            except:
+                print("Could not send message to member.")
 
     for member in vars.faculty_role.members:
         print(f"Checking faculty member: {member.display_name}...", end=" ")
