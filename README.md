@@ -9,7 +9,13 @@ This code is meant for maintaining official discord servers of CSE250, CSE251, C
 ## Steps for the Very First Time
 If you have never run this code...
 ### Google Credentials
-- Download the `credentials.json` file following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html) and keep it in the directory above.
+- Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html) and keep it in the 
+directory above.
+- Go to your pc's downloads folder: `ls Downloads/`
+- copy to server securely: `scp Downloads/credentials.json bot-250:~/`
+- to check: 
+  - login as username: `ssh username@bot-250`
+  - credentials file should be visable under home: `ls`
 ### Discord Bot Account
 - Developer portal
 ### Server
