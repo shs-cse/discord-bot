@@ -68,7 +68,7 @@ Host bot-250
 If you are re-running the code (e.g. in the beginning of the semester)
 - Create a new folder and `cd` to it: 
 ```bash
-mkdir fall_2022 && cd fall_2022
+mkdir summer_2023 && cd summer_2023
 ```
 - Clone this github repo (your directory must be empty) and make sure changes in `info.json` is not tracked: 
 ```bash
@@ -94,7 +94,7 @@ To exit the session without closing it, press `Ctrl+b`, then `d`
 ## If you want to update code or start running again
 - cd to the desired directory, e.g.,
 ```bash
-cd ~/fall_2022
+cd ~/summer_2023
 ```
 - run the script
 ```bash
