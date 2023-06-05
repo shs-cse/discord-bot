@@ -45,10 +45,11 @@ def check_and_load(file):
     # marks sheets check
     # grouping
     try:
-        if not info['marks_groups']:
-            marks_groups = input(
-                "Enter list of lists for marks sheet group (e.g. [[1,2],[10]]): ")
-            info['marks_groups'] = json.loads(marks_groups)
+        # # ask for marks_groups if empty []
+        # if not info['marks_groups']:
+        #     marks_groups = input(
+        #         "Enter list of lists for marks sheet group (e.g. [[1,2],[10]]): ")
+        #     info['marks_groups'] = json.loads(marks_groups)
         # assert that marks_groups is of type list[list[int]]
         assert all(isinstance(marks_group, list)
                    for marks_group in info['marks_groups'])
