@@ -106,3 +106,6 @@ def sync_usis_before(info, filenames):
     usis_sheet.clear('C2', f'D{end}')
     update_sheet_values(
         {f'C2:D{end}': usis_data.iloc[:, 1:].values.tolist()}, usis_sheet)
+    vars.df_student = get_sheet_data(
+        info["enrolment"], "StudentList").set_index("Student ID")
+    vars.df_student = vars.df_student[vars.df_student.index != '']
