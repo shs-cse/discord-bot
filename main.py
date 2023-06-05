@@ -75,7 +75,7 @@ async def on_member_join(member):
     if member.bot:
         return
     elif member in vars.eee_guild.members:
-        nick_in_eee_guild = vars.eee_guild.get_member(member.id).nick
+        nick_in_eee_guild = vars.eee_guild.get_member(member.id).display_name
         await member.edit(nick=nick_in_eee_guild)
         await member.add_roles(vars.faculty_role)
         await assign_sections(member)
