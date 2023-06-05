@@ -52,6 +52,13 @@ Here's a video recording of the process from Summer'23.
 Host bot-250
   Hostname IP_ADDRESS
   User username
+
+```
+  - if fails:
+```
+Host bot-250
+  Hostname IP_ADDRESS
+  User username
   IdentityFile ~/.ssh/id_rsa
 
 ```
