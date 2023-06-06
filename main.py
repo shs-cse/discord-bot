@@ -212,7 +212,7 @@ async def post_rules(ctx):
 
 
 @bot.slash_command(name="revive-all-buttons", description="Posts general rules.")
-@faculty_and_higher()
+@bot_admin_and_higher()
 async def revive_all_buttons(ctx):
     await ctx.defer(ephemeral=True)
     await revive_buttons(info)
@@ -244,7 +244,7 @@ async def revive_sec_access(ctx, message):
 
 
 @bot.slash_command(name="sync-sheets", description="Sync updates from enrolment sheet and marks sheets with bot.")
-@faculty_and_higher()
+@bot_admin_and_higher()
 async def sync_with_sheets(ctx):
     await ctx.defer(ephemeral=True)
     await sync_sheets(info)
