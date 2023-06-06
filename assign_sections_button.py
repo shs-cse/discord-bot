@@ -41,7 +41,7 @@ async def assign_sections(member):
     else:
         initial = re.search(
             r"^\[([A-Z0-9]{3})\].*", member.display_name).group(1)
-        # print(f"Assigning section roles to {initial}")
+        print(f"Assigning section roles to {initial}")
         # remove exisiting section role, if any
         section_roles = [
             role for role in member.roles if role in vars.all_sec_roles]
