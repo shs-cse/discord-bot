@@ -75,7 +75,7 @@ async def on_member_join(member):
     if member.bot:
         return
     elif member in vars.eee_guild.members:
-        nick_in_eee_guild = vars.eee_guild.get_member(member.id).nick
+        nick_in_eee_guild = vars.eee_guild.get_member(member.id).display_name
         await member.edit(nick=nick_in_eee_guild)
         await member.add_roles(vars.faculty_role)
         await assign_sections(member)
@@ -173,6 +173,7 @@ async def check_faculties(ctx):
         if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(
                 member.id).display_name
+            print(f"nickname not set properly. setting to: {nick_in_eee_guild}")
             await member.edit(nick=nick_in_eee_guild)
         await assign_sections(member)
     await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
