@@ -3,32 +3,56 @@
 This code is meant for maintaining official discord servers of CSE250, CSE251, CSE350, CSE460, and CSE428 at Brac University, Dhaka, Bangladesh.
 
 # Instructions for Bot Setup
-- [The very first time](#steps-for-the-very-first-time)
-- [Re-running the next-semester](#steps-for-the-re-running-the-bot)
+- [**The very first time**](#steps-for-the-very-first-time)
+- [**Re-running the next semester**](#steps-for-the-re-running-the-bot)
+
+---
 
 ## Steps for the Very First Time
-If you have never run this code...
-### If on Windows...
+If you have never run this code, please follow the steps below. For video format tutorial, please [check out the server setup process from Summer'23](https://www.youtube.com/playlist?list=PL-lCYwFS3hp27ySPTWeLUdBkiDwvXvVig) (only accessible via a **@bracu.ac.bd** youtube account).
+
+### Preliminaries
+#### If on Windows...
 Please install [Git Bash](https://git-scm.com/downloads) for using unix-like commands on Windows. `ls`, `cd`, `ssh`, `git` etc. commands can be used on **macOS** and **Linux** terminals without any hassle. However, if you're on **Windows**, you must emulate them to use these commands. That's exactly what Git Bash does.
 
-### Google Credentials
+#### Discord Bot Account
+- Developer portal setup
+
+#### Google Credentials
 - Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
-- Go to your PC's downloads folder: `ls Downloads/`
-- copy to server securely: `scp Downloads/credentials.json bot-250:~/`
-- to check: 
-  - login as username: `ssh username@bot-250`
-  - credentials file should be visable under home: `ls`
-### Discord Bot Account
-- Developer portal
-### Server
-[Video recording of the process from Summer'23.](https://www.youtube.com/playlist?list=PL-lCYwFS3hp27ySPTWeLUdBkiDwvXvVig)
-- DigitalOcean -> Droplet -> 1Gib RAM ($6)
-- SSH
-- `ssh-keygen -t rsa -b 2048` -> (Enter x3) -> default id_rsa, No passphrase
-- `ls ~/.ssh` -> `id_rsa`, `id_rsa.pub`
-- `chmod 600 ~/.ssh/id_rsa` -> chmod 600: users can read and write but no execute. groups and others don't have any access.
-- `chmod 600 ~/.ssh/id_rsa.pub` -> 
-- `cat ~/.ssh/id_rsa.pub` to show file content
+
+#### Buy Cloud Service
+We shall be using a [DigitalOcean Droplet server](https://www.digitalocean.com/pricing/droplets#basic-droplets) for our cloud service.
+- DigitalOcean -> Droplet -> 1GiB RAM ($6)
+
+### SSH Key Generation
+To access the cloud service from your own PC, we need a way for the server to recognize our PCs. 
+This can be done with SSH. We can send commands to the server via `ssh` and check the outputs on our PC's terminal as if they were running on our own PC. But first, we need to create a "key" on our PC that can unlock the "lock" of the cloud server.
+- Generate ssh key on your PC: (need to press <kbd>Enter</kbd> 3 times. -> default file name id_rsa + no passphrase)
+  ```
+  ssh-keygen -t rsa -b 2048
+  ``` 
+- The previous command should generate a folder named `.ssh` in the user's home directory (`~`). Check it by using:
+  ```
+  ls ~/.ssh
+  ```
+  Output must include these files: `id_rsa`, `id_rsa.pub`
+- Give read and write access to your user account, but not execute: (Usergroups and others don't have any access)
+  ```
+  chmod 600 ~/.ssh/id_rsa
+  ```
+  _Explanation:_ `chmod` stands for "Change mode". `600` is for setting the aforementioned read-write accesses:
+    | Access | Read | Write | Execute | In Binary | In Decimal |
+    |:------:|:----:|:----------:|:------:|:---:|:---:|
+    |  User  | ✅ | ✅ | ❌ | `110` | **6** |
+    | User Group<br><sub><sup>(every user is under<br>a user group)</sup></sub> | ❌ | ❌ | ❌ | `000` | **0** |
+    | Others | ❌ | ❌ | ❌ | `000` | **0** |
+    |        |    |   |    | All Together: | **600** |
+- Print contents of the `id_rsa.pub` file:
+  ```
+  cat ~/.ssh/id_rsa.pub
+  ```
+### Upload SSH Key to Cloud Server
 - share ssh-rsa
 - add these "New Ssh-key" on DigitalOcean droplets.
 - Static IP: Manage -> Networking -> Assign a Reserved IP.
@@ -55,20 +79,20 @@ Please install [Git Bash](https://git-scm.com/downloads) for using unix-like com
 - give `IP_ADDRESS` a name:
 - on your pc, create a ssh config file: `nano ~/.ssh/config` 
 - add these lines (`bot-250` is just a easily memorable name and `IdentityFile` is optional), end with a new line:
-```
-Host bot-250
-  Hostname IP_ADDRESS
-  User username
-
-```
+  ```
+  Host bot-250
+    Hostname IP_ADDRESS
+    User username
+  
+  ```
   - if fails:
-```
-Host bot-250
-  Hostname IP_ADDRESS
-  User username
-  IdentityFile ~/.ssh/id_rsa
-
-```
+    ```
+    Host bot-250
+      Hostname IP_ADDRESS
+      User username
+      IdentityFile ~/.ssh/id_rsa
+    
+    ```
 - now you should be able to login in an easier manner: `ssh username@bot-250`
 - Install Miniconda
   - Get link to latest miniconda file. Right now it's: `https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
@@ -78,6 +102,17 @@ Host bot-250
   - Enter for start, Space for more, "yes" for accepting (by default: "no") 
   - refresh bash source: `. ~/.bashrc`
   - test if python is working: `which python`
+
+### Google Credentials
+- Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
+- Go to your PC's downloads folder: `ls Downloads/`
+- copy to server securely: `scp Downloads/credentials.json bot-250:~/`
+- to check: 
+  - login as username: `ssh username@bot-250`
+  - credentials file should be visible under home: `ls`
+
+---
+
 ## Steps for the Re-running the Bot
 If you are re-running the code (e.g. in the beginning of the semester)
 - Create a new folder and `cd` to it: 
