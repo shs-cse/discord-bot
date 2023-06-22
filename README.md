@@ -8,10 +8,12 @@ This code is meant for maintaining official discord servers of CSE250, CSE251, C
 
 ## Steps for the Very First Time
 If you have never run this code...
+### If on Windows...
+Please install [Git Bash](https://git-scm.com/downloads) for using unix-like commands on Windows. `ls`, `cd`, `ssh`, `git` etc. commands can be used on **macOS** and **Linux** terminals without any hassle. However, if you're on **Windows**, you must emulate them to use these commands. That's exactly what Git Bash does.
+
 ### Google Credentials
-- Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html) and keep it in the 
-directory above.
-- Go to your pc's downloads folder: `ls Downloads/`
+- Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
+- Go to your PC's downloads folder: `ls Downloads/`
 - copy to server securely: `scp Downloads/credentials.json bot-250:~/`
 - to check: 
   - login as username: `ssh username@bot-250`
@@ -19,8 +21,7 @@ directory above.
 ### Discord Bot Account
 - Developer portal
 ### Server
-Here's a video recording of the process from Summer'23.
-- If on windows, install Git Bash
+[Video recording of the process from Summer'23.](https://www.youtube.com/playlist?list=PL-lCYwFS3hp27ySPTWeLUdBkiDwvXvVig)
 - DigitalOcean -> Droplet -> 1Gib RAM ($6)
 - SSH
 - `ssh-keygen -t rsa -b 2048` -> (Enter x3) -> default id_rsa, No passphrase
