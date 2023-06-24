@@ -142,7 +142,7 @@ On the [DigitalOcean website you can find how to upload your ssh key](https://do
     ```bash
     visudo
     ```
-  - Add the following line under `root  ALL=(ALL:ALL) ALL`:
+  - To let `username` use any command (like `root`), add the following line under `root  ALL=(ALL:ALL) ALL`:
     ```bash
     username  ALL=(ALL:ALL) ALL
     ```
