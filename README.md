@@ -146,6 +146,13 @@ On the [DigitalOcean website you can find how to upload your ssh key](https://do
     ```bash
     username  ALL=(ALL:ALL) ALL
     ```
+    > <picture>
+    >   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/example.svg">
+    >   <img alt="Example" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/example.svg">
+    > </picture><br>
+    >
+    > For the user `shs`:<br>
+    > `shs  ALL=(ALL:ALL) ALL`
   - For saving the file:
     - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; O &#x2003;<br>&#x2003;</kbd>,
     - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>,
