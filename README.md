@@ -9,14 +9,47 @@ This code is meant for maintaining official discord servers of CSE250, CSE251, C
 ---
 
 # Steps for the Very First Time
-If you have never run this code, please follow the steps below. For video format tutorial, please [check out the server setup process from Summer'23](https://www.youtube.com/playlist?list=PL-lCYwFS3hp27ySPTWeLUdBkiDwvXvVig) (only accessible via a **@bracu.ac.bd** youtube account).
+If you have never run this code, please follow the steps below. For a video format tutorial, please [check out the server setup process from Summer'23](https://www.youtube.com/playlist?list=PL-lCYwFS3hp27ySPTWeLUdBkiDwvXvVig) _(only accessible via a **@bracu.ac.bd** youtube account)_.
+
 
 ## Preliminaries
 ### If on Windows...
 Please install [Git Bash](https://git-scm.com/downloads) for using unix-like commands on Windows. `ls`, `cd`, `ssh`, `git` etc. commands can be used on **macOS** and **Linux** terminals without any hassle. However, if you're on **Windows**, you must emulate them to use these commands. That's exactly what Git Bash does.
 
 ### Discord Bot Account
-- Developer portal setup
+We need to create an "account" (it's actually called a bot _application_) for the bot. It's different from regular user account creation. Please follow these steps for that:
+- Go to
+  [Discord developer portal
+  <img align="center" alt="&gt;" src="https://octicons.glitch.me/chevron-right.svg?size=16&color=2f81f7">
+  Applications](https://discord.com/developers/applications).
+- Create a new bot application:
+  - <details>
+    <summary><strong><ins>Video: How to Create A New Bot Application</ins></strong></summary>
+    <video src="https://github.com/shs-cse/discord-bot/assets/67824850/279ed371-2b1d-43ca-8bb2-8fd80dfc9718"/>
+    </details>
+
+  - Press the <kbd>&#x2003;<br>&#x2003; New Application &#x2003;<br>&#x2003;</kbd> button.
+  - Give it a proper name (e.g. `CSE250`) that the bot will show up as on your discord server.
+  - <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://api.iconify.design/octicon/checkbox-16.svg?color=black">
+    <img src="https://api.iconify.design/octicon/checkbox-16.svg?color=%23e6edf3">
+    </picture>
+    Agree to terms and click the <kbd>&#x2003;<br>&#x2003; Create &#x2003;<br>&#x2003;</kbd> button.
+  - Go to Left Pane ![>](https://api.iconify.design/octicon/chevron-right-16.svg?color=%23888)
+    <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://api.iconify.design/octicon/chevron-right-16.svg?color=black">
+    <img align="center" alt="&gt;" src="https://api.iconify.design/octicon/chevron-right-16.svg?color=%23e6edf3">
+    </picture>
+    <kbd>&#x2003;<br>&#x2003; Bot &#x2003;<br>&#x2003;</kbd> button.
+  - Keep the public bot switch turned on. 
+  - Turn on all 3 intents.
+
+
+
+
+
+
+
 
 ### Google Credentials
 - Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
@@ -154,10 +187,10 @@ On the [DigitalOcean website you can find how to upload your ssh key](https://do
     > For the user `shs`:<br>
     > `shs  ALL=(ALL:ALL) ALL`
   - For saving the file:
-    - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; O &#x2003;<br>&#x2003;</kbd>,
-    - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>,
-    - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; X &#x2003;<br>&#x2003;</kbd>,
-    - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>.
+    - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; O &#x2003;<br>&#x2003;</kbd>
+    - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>
+    - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; X &#x2003;<br>&#x2003;</kbd>
+    - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>
   - Log out from `root` and **log in** as the new `username` : (`su` stands for "substitute user"):
     ```bash
     su username
@@ -241,10 +274,10 @@ On the [DigitalOcean website you can find how to upload your ssh key](https://do
       PermitRootLogin no
       ```
     - Save and close the file with:
-      - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; O &#x2003;<br>&#x2003;</kbd>,
-      - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>,
-      - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; X &#x2003;<br>&#x2003;</kbd>,
-      - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>.
+      - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; O &#x2003;<br>&#x2003;</kbd>
+      - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>
+      - Press <kbd>&#x2003;<br>&#x2003; Ctrl &#x2003;<br>&#x2003;</kbd> + <kbd>&#x2003;<br>&#x2003; X &#x2003;<br>&#x2003;</kbd>
+      - Press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>
   - Restart `ssh` service:
     ```bash
     sudo systemctl restart ssh.service
