@@ -35,21 +35,11 @@ We need to create an "account" (it's actually called a bot _application_) for th
     <img src="https://api.iconify.design/octicon/checkbox-16.svg?color=%23e6edf3">
     </picture>
     Agree to terms and click the <kbd>&#x2003;<br>&#x2003; Create &#x2003;<br>&#x2003;</kbd> button.
-  - Go to Left Pane ![>](https://api.iconify.design/octicon/chevron-right-16.svg?color=%23888)
-    <picture>
-    <source media="(prefers-color-scheme: light)" srcset="https://api.iconify.design/octicon/chevron-right-16.svg?color=black">
-    <img align="center" alt="&gt;" src="https://api.iconify.design/octicon/chevron-right-16.svg?color=%23e6edf3">
-    </picture>
+  - Go to Left Pane
+    <img align="center" alt="&gt;" src="https://api.iconify.design/octicon/chevron-right-16.svg?color=%23888">
     <kbd>&#x2003;<br>&#x2003; Bot &#x2003;<br>&#x2003;</kbd> button.
   - Keep the public bot switch turned on. 
   - Turn on all 3 intents.
-
-
-
-
-
-
-
 
 ### Google Credentials
 - Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
@@ -415,5 +405,6 @@ bash -i script.sh
 
 
 <!------------------------- References ------------------------------>
+[chevron-right]:https://api.iconify.design/octicon/chevron-right-16.svg?color=%23888
 [Link to Add SSH Key]:https://cloud.digitalocean.com/account/security
 [Link to Miniconda]:https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
