@@ -9,71 +9,73 @@ from utils_wrapper import get_channel
 
 
 def get_sec_marks(info, sec):
-    print(f"Fetching marks from section {sec} marks sheet...", end=' ')
-    meta_sheet = get_sheet(info['marks'][str(sec)], 'Meta')
+    print(f"Fetching marks from section {sec} marks sheet...", end=" ")
+    meta_sheet = get_sheet(info["marks"][str(sec)], "Meta")
     # forced refresh
-    blank_cell = meta_sheet.get_named_range('BLANK')
+    blank_cell = meta_sheet.get_named_range("BLANK")
     for _ in range(10):
         blank_cell.clear()
 
-    sec_sheet = get_sheet(info['marks'][str(sec)],
-                          literals.sec_marks_sheet_name_format.format(sec))
+    sec_sheet = get_sheet(
+        info["marks"][str(sec)], literals.sec_marks_sheet_name_format.format(sec)
+    )
     # TODO: might have issues with not reaching the last column with columns with empty header
 
-    sec_marks = sec_sheet.get_as_df(start='B1', has_header=False)
-    print(f"extracting marks...", end=' ')
+    sec_marks = sec_sheet.get_as_df(start="B1", has_header=False)
+    print(f"extracting marks...", end=" ")
 
     ...  # rename index
     sec_marks.columns = sec_marks.loc[2].copy()
     for row_name, row_no in literals.info_row_dict.items():
-        sec_marks['Student ID'].loc[row_no-1] = row_name
-    sec_marks.set_index('Student ID', inplace=True)
+        sec_marks.loc[row_no - 1, "Student ID"] = row_name
+    sec_marks.set_index("Student ID", inplace=True)
     sec_headers = sec_marks.loc[literals.info_row_dict.keys()]
     # get maximum entry count from sheet
-    row_marks_count = int(meta_sheet.get_named_range(
-        'ROW_DATA_COUNT').cells[0][0].value)
+    row_marks_count = int(
+        meta_sheet.get_named_range("ROW_DATA_COUNT").cells[0][0].value
+    )
     # sec_bonus_marks = sec_marks[-2*row_marks_count-1:-row_marks_count-1]
     # sec_bonus_marks = sec_bonus_marks[sec_bonus_marks.index != '']
     sec_marks = sec_marks[-row_marks_count:]
-    sec_marks = sec_marks[sec_marks.index != '']
+    sec_marks = sec_marks[sec_marks.index != ""]
     # map students to where their marks are stored (useful for students attending other sections)
     try:
-        vars.df_marks_section.loc[sec_marks.index, 'Marks Section'] = sec
-        print('Done.')
+        vars.df_marks_section.loc[sec_marks.index, "Marks Section"] = sec
+        print("Done.")
     except:
         print("Couldn't find some student ID's in Enrolment sheet.")
     sec_marks = pd.concat([sec_headers, sec_marks]).transpose()
-    sec_marks['Publish?'] = sec_marks['Publish?'] == 'Publish?\n✔︎'
+    sec_marks["Publish?"] = sec_marks["Publish?"] == "Publish?\n✔︎"
     return sec_marks
 
 
 async def update_sec_marks(info, sec, ctx=None):
     sec_marks = get_sec_marks(info, sec)
     vars.dict_df_marks[sec] = sec_marks
-    published_sec_marks = sec_marks['Total Marks'][
-        sec_marks['Publish?'] & (
-            pd.to_numeric(sec_marks['Depth']) <= literals.max_depth_assessment_for_autocomplete)
+    published_sec_marks = sec_marks["Total Marks"][
+        sec_marks["Publish?"]
+        & (
+            pd.to_numeric(sec_marks["Depth"])
+            <= literals.max_depth_assessment_for_autocomplete
+        )
     ]
-    published_numeric_sec_marks = pd.to_numeric(
-        published_sec_marks, errors='coerce')
+    published_numeric_sec_marks = pd.to_numeric(published_sec_marks, errors="coerce")
     published_numeric_sec_marks = published_numeric_sec_marks[
         published_numeric_sec_marks.notna()
     ]
     # create options
     vars.dict_sec_marks_assessments[sec] = []
     for assessment in published_numeric_sec_marks.index:
-        assessment_col = sec_marks.at[assessment, 'Self Column']
-        parent_col = sec_marks.at[assessment, 'Parent Column']
-        parent = sec_marks[sec_marks['Self Column'] == parent_col].index
+        assessment_col = sec_marks.at[assessment, "Self Column"]
+        parent_col = sec_marks.at[assessment, "Parent Column"]
+        parent = sec_marks[sec_marks["Self Column"] == parent_col].index
         if parent.empty:
             option_str = assessment
         else:
-            option_str = assessment + '\u2000' * 5 + " ← " + parent[0]
+            option_str = assessment + "\u2000" * 5 + " ← " + parent[0]
         vars.dict_sec_marks_assessments[sec].append(
-            discord.OptionChoice(
-                name=option_str,
-                value=assessment_col
-            ))
+            discord.OptionChoice(name=option_str, value=assessment_col)
+        )
     # vars.dict_sec_marks_assessments[sec] = published_numeric_sec_marks.index.to_list(
     # )
     # HACK: send message to keep bot alive
@@ -86,11 +88,13 @@ async def update_sec_marks(info, sec, ctx=None):
 
 def get_df_marks_by_student_id(student_id):
     try:
-        marks_section = vars.df_marks_section.xs(
-            student_id, level='Student ID')['Marks Section']
+        marks_section = vars.df_marks_section.xs(student_id, level="Student ID")[
+            "Marks Section"
+        ]
         marks_section = marks_section.values[0]  # int value
-        marks_df = vars.dict_df_marks[marks_section][list(
-            literals.info_row_dict) + [student_id]]
+        marks_df = vars.dict_df_marks[marks_section][
+            list(literals.info_row_dict) + [student_id]
+        ]
         return marks_df
     except:
         return None
@@ -98,8 +102,7 @@ def get_df_marks_by_student_id(student_id):
 
 def get_df_marks_by_discord_id(discord_id):
     try:
-        student_id = vars.df_marks_section.xs(
-            discord_id, level='Discord ID').index[0]
+        student_id = vars.df_marks_section.xs(discord_id, level="Discord ID").index[0]
         return get_df_marks_by_student_id(student_id)
     except:
         return None
