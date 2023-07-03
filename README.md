@@ -346,7 +346,8 @@ From here on out, you will logging in to the server repeatedly, It's a hassle to
   ```
   - **Start**: press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>,
   - **More**: press <kbd>&#x2003;<br>&#x2003; Space &#x2003;<br>&#x2003;</kbd> repeatedly,
-  - **Input**: when prompted, type `yes` for accepting (default: "no") 
+  - **Input 1**: when prompted, type `yes` for accepting the EULA (default: "no")
+  - **Input 2**: when prompted, type `yes` for adding miniconda to PATH variable (default: "no")
 - Refresh bash source:
   ```bash
   . ~/.bashrc
