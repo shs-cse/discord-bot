@@ -13,5 +13,7 @@
 
     
     "enrolment": "",
-    "marks": ""
+    "marks_groups": [],
+    "marks": {},
+    "buttons": {}
 }
