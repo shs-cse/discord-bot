@@ -137,7 +137,7 @@ async def check_everyone(ctx):
 
     for member in vars.faculty_role.members:
         print(f"Checking faculty member: {member.display_name}...", end=" ")
-        if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
+        if not re.search(literals.regex_faculty['initial'], member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(
                 member.id).display_name
             await member.edit(nick=nick_in_eee_guild)
@@ -170,7 +170,7 @@ async def check_faculties(ctx):
     await ctx.defer(ephemeral=True)
     for member in vars.faculty_role.members:
         print(f"checking {member.display_name}")
-        if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
+        if not re.search(literals.regex_faculty['initial'], member.display_name):
             nick_in_eee_guild = vars.eee_guild.get_member(
                 member.id).display_name
             print(f"nickname not set properly. setting to: {nick_in_eee_guild}")

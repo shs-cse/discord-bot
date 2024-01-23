@@ -28,6 +28,10 @@ regex_student = {
     "name": r"\[[0-9]{8}\].*"
 }
 
+regex_faculty = {
+    "initial": r"^\[([A-Z0-9]{3,4})\].*"
+}
+
 regex_file_folder_id = r"(?<=/)[\w_-]{15,}|^[\w_-]{15,}"
 
 # with space
