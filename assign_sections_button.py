@@ -34,13 +34,13 @@ async def assign_sections(member):
         embed = discord.Embed(
             title=":x: Error", description="You are not a faculty member", color=discord.Color.red())
         return embed
-    if not re.search(r"^\[[A-Z0-9]{3}\].*", member.display_name):
+    if not re.search(literals.regex_faculty['initial'], member.display_name):
         embed = discord.Embed(title=":x: Error", color=discord.Color.red())
         embed.description = "Your nickname is not set properly. Please change your nickname to `[INITIAL] Full Name` format first."
         return embed
     else:
         initial = re.search(
-            r"^\[([A-Z0-9]{3})\].*", member.display_name).group(1)
+            literals.regex_faculty['initial'], member.display_name).group(1)
         print(f"Assigning section roles to {initial}")
         # remove exisiting section role, if any
         section_roles = [
