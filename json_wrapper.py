@@ -41,6 +41,8 @@ def check_and_load(file):
         info['enrolment'] = sheet_id
         update_json(info, file)
         routine_sheet.spreadsheet.share('', role='reader', type='anyone')
+    else:
+        routine_sheet = get_sheet(info['enrolment'], "Routine")
 
     # marks sheets check
     # grouping
@@ -50,6 +52,9 @@ def check_and_load(file):
         #     marks_groups = input(
         #         "Enter list of lists for marks sheet group (e.g. [[1,2],[10]]): ")
         #     info['marks_groups'] = json.loads(marks_groups)
+        
+        # fetch marks groups by theory faculty from routine sheet
+        info['marks_groups'] = json.loads(routine_sheet.get_value("L2"))
         # assert that marks_groups is of type list[list[int]]
         assert all(isinstance(marks_group, list)
                    for marks_group in info['marks_groups'])
