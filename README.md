@@ -19,9 +19,8 @@ Please install [Git Bash](https://git-scm.com/downloads) for using unix-like com
 ### Discord Bot Account
 We need to create an "account" (it's actually called a bot _application_) for the bot. It's different from regular user account creation. Please follow these steps for that:
 - Go to
-  [Discord developer portal
-  <img align="center" alt="&gt;" src="https://octicons.glitch.me/chevron-right.svg?size=16&color=2f81f7">
-  Applications](https://discord.com/developers/applications).
+  [Discord developer portal > Applications](https://discord.com/developers/applications).
+  <!--img align="center" alt="&gt;" src="https://octicons.glitch.me/chevron-right.svg?size=16&color=2f81f7"-->
 - Create a new bot application:
   - <details>
     <summary><strong><ins>Video: How to Create A New Bot Application</ins></strong></summary>
@@ -377,13 +376,14 @@ mkdir summer_2023 && cd summer_2023
 git clone https://github.com/shs-cse/discord-bot.git . && git update-index --skip-worktree info.json
 ```
 - Create a new server by copying the template [https://discord.new/RVh3qBrGcsxA](https://discord.new/RVh3qBrGcsxA). The server name should follow the format `<course-code> <semester> <yyyy>`, for example, `CSE251 Fall 2022`.
-- Add your discord bot the server and add `bot` role to the bot. Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server.
+- Add your discord bot the server and add `@bot` role to the bot.
+- Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server.
 - Update the `info.json` file accordingly.
 - Start the bot by running the script
 ```bash
 bash -i script.sh
 ```
-- To update `USIS (before)` in the enrolment sheet, upload the `.xls` files downloaded from USIS in any channel as a message, click "More > Apps > Update USIS (Before)". You may need to repeat this multiple times since you can only upload 10 files at a time.
+- To update `USIS (before)` in the enrolment sheet, upload the `.xls` files downloaded from USIS in any channel as a message, click `More > Apps > Update USIS (Before)`. You may need to repeat this multiple times since you can only upload 10 files at a time.
 
 
 
