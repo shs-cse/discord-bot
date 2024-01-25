@@ -25,6 +25,7 @@ def check_and_load(file):
 
     assert info['n_sections'] > 0, "Number of sections must be positive"
     if missing := info['missing_sections']:
+        assert 1 not in missing, "Section 1 is used as template, can't be a missing section."
         assert set(missing).issubset(
             range(1, info['n_sections'])), "Missing sections that don't exist"
         
