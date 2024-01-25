@@ -194,6 +194,9 @@ async def post_assign_faculty(ctx):
 @bot_admin_and_higher()
 async def post_verify(ctx):
     await ctx.defer(ephemeral=True)
+    if vars.df_student.empty:
+        await ctx.followup.send(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+        return
     button_view = VerificationButtonView()
     message = await ctx.channel.send(literals.messages['student_verify'],
                                      view=button_view)
@@ -205,6 +208,9 @@ async def post_verify(ctx):
 @bot_admin_and_higher()
 async def post_rules(ctx):
     await ctx.defer(ephemeral=True)
+    if vars.df_student.empty:
+        await ctx.followup.send(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+        return
     button_view = VerificationButtonView()
     message = await ctx.channel.send(literals.messages['short_rules'],
                                      view=button_view)
@@ -224,6 +230,9 @@ async def revive_all_buttons(ctx):
 @bot_admin_and_higher()
 async def revive_verify(ctx, message):
     try:
+        if vars.df_student.empty:
+            await ctx.respond(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+            return
         button_view = VerificationButtonView()
         message = await message.edit(view=button_view)
         log_message_view(info, message, button_view)
