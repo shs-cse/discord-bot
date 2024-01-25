@@ -322,7 +322,18 @@ async def post_as_bot(ctx, message, channel: discord.Option(discord.TextChannel,
     await ctx.followup.send(f"Posted {message_obj.jump_url} to {channel.mention}", ephemeral=True)
 
 
-@bot.slash_command(name="update-section-marks", description="Update marks of the current channel")
+@bot.slash_command(name="update-all-sections-marks", description="Update marks of the all sections")
+@faculty_and_higher()
+async def update_all_sections_marks(ctx):
+    await ctx.defer(ephemeral=True)
+    try:
+        for sec in vars.available_sections:
+            await update_sec_marks(info, sec)
+    except:
+        await ctx.followup.send("Something went wrong. Couldn't update marks.", ephemeral=True)
+
+
+@bot.slash_command(name="update-section-marks", description="Update marks of the current channel or specific section")
 @faculty_and_higher()
 async def update_section_marks(ctx, section: discord.Option(int, required=False, description="Integer. Enter the section whose marks you want to update.")):
     await ctx.defer(ephemeral=True)
