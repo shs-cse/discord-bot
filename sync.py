@@ -65,7 +65,7 @@ async def sync_sheets(info):
     arr_updated = []
     for k, mem in enumerate(vars.guild.members):
         arr_updated.append([])
-        arr_updated[k] += [mem.name, str(mem.id), mem.nick, mem.roles[0].name]
+        arr_updated[k] += [mem.name, str(mem.id), mem.display_name, mem.roles[0].name]
         # primary and secondary roles
         sorted_roles = [role.name for role in mem.roles[1:]]
         sorted_roles.sort()
