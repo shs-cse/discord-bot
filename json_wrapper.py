@@ -54,7 +54,8 @@ def check_and_load(file):
         #     info['marks_groups'] = json.loads(marks_groups)
         
         # fetch marks groups by theory faculty from routine sheet
-        info['marks_groups'] = json.loads(routine_sheet.get_value("L2"))
+        if not info['marks_groups']:
+            info['marks_groups'] = json.loads(routine_sheet.get_value("L2"))
         # assert that marks_groups is of type list[list[int]]
         assert all(isinstance(marks_group, list)
                    for marks_group in info['marks_groups'])
