@@ -1,3 +1,4 @@
+import requests
 import pygsheets as pygs
 
 
@@ -38,3 +39,11 @@ def update_sheet_values(set_values, sheet=None, sheet_id=None, sheet_name=None):
     if not sheet:
         sheet = get_sheet(sheet_id, sheet_name)
     sheet.update_values_batch(ranges, values)
+
+
+def allow_access(dest_sheet_id, src_sheet_id):
+    google_client = pygs.authorize(client_secret='credentials.json')
+    token = google_client.oauth.token
+    url = f"https://docs.google.com/spreadsheets/d/{dest_sheet_id}/externaldata/addimportrangepermissions?donorDocId={src_sheet_id}"
+    requests.post(url, headers={'Authorization': f"Bearer {token}"})
+    
