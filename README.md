@@ -42,6 +42,7 @@ We need to create an "account" (it's actually called a bot _application_) for th
 
 ### Google Credentials
 - Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
+- Make sure to use google credentials `Oauth Client ID` > `Desktop App`
 
 ### Buy Cloud Service
 We shall be using a [DigitalOcean Droplet server](https://www.digitalocean.com/pricing/droplets#basic-droplets) for our cloud service.
@@ -377,7 +378,7 @@ git clone https://github.com/shs-cse/discord-bot.git . && git update-index --ski
 ```
 - Create a new server by copying the template [https://discord.new/RVh3qBrGcsxA](https://discord.new/RVh3qBrGcsxA). The server name should follow the format `<course-code> <semester> <yyyy>`, for example, `CSE251 Fall 2022`.
 - Add your discord bot the server and add `@bot` role to the bot.
-- Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server.
+- Also, make sure the bot is added to the **`EEE Course Team - BracU CSE`** server. (admin not needed. used manage server permission but also probably unnecessary)
 - Update the `info.json` file accordingly.
 - Start the bot by running the script
 ```bash
