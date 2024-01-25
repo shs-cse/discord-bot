@@ -10,6 +10,7 @@ from marks import update_sec_marks
 
 
 async def sync_init(bot, info):
+    print("Syncing initialization...")
     vars.guild = bot.get_guild(info['guild_id'])
     vars.eee_guild = bot.get_guild(literals.guild_eee_faculty)
     vars.available_sections = [sec for sec in range(1, info['n_sections']+1)
@@ -20,9 +21,11 @@ async def sync_init(bot, info):
         invite = await welcome.create_invite(max_age=0, max_uses=0)
         info['invite'] = invite.url
         update_json(info, vars.json_file)
+    print("... complete!")
 
 
 async def sync_roles(info):
+    print("Syncing roles...")
     vars.faculty_role = get_role("faculty")
     vars.thoery_and_lab_faculty_roles[literals.class_types[0]] = get_role(
         "theory-faculty")
@@ -41,6 +44,7 @@ async def sync_roles(info):
     vars.all_sec_roles = {roles[ctype]
                           for roles in vars.sec_roles.values()
                           for ctype in literals.class_types}
+    print("... complete!")
 
 
 async def sync_sheets(info):

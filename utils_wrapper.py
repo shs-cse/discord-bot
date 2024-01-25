@@ -7,6 +7,7 @@ from discord.ext import commands
 
 
 def get_role(name):
+    print(f"... fetching role: {name}")
     return utils.get(vars.guild.roles, name=name)
 
 
