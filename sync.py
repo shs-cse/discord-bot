@@ -109,3 +109,4 @@ def sync_usis_before(info, filenames):
     vars.df_student = get_sheet_data(
         info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_student = vars.df_student[vars.df_student.index != '']
+    vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
