@@ -197,7 +197,7 @@ async def verify_as_id(ctx,
         await ctx.followup.send(view=view, embeds=[embed], ephemeral=True)
     except Exception as error:
         await ctx.followup.send(f"Something went wrong. Could not verify {member.mention} with `ID:{student_id}`." 
-                                f" Returned following error:\n```{error}```")
+                                f" Returned following error:\n```{type(error).__name__}\n{error}```")
 
 
 @bot.slash_command(name="post-assign-faculty", description="Posts a button for faculties to auto assign section roles.")

@@ -1,5 +1,5 @@
 from discord.ui import View, InputText, Modal, Button
-from utils_wrapper import OpenFormButton, get_member
+from utils_wrapper import OpenFormButton
 import discord
 import vars
 import literals
@@ -105,7 +105,7 @@ async def check_student(member, input_text, reinput_text=None):
             embed.description += "If you think this is an error, please contact an admin with proper proof."
         # member probably has alt account -> sure?
         else:
-            embed.description = f"`{student_id}` was used by account with discord account {get_member(advising_id).mention} in the advising server. "
+            embed.description = f"`{student_id}` was used by account with discord account <@{advising_id}> in the advising server. "
             embed.description += f"Are you sure you want to use this account ({member.mention}) with student id `{student_id}` for this server? "
             embed.description += "We recommend using the same id for both servers."
 
