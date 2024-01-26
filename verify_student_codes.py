@@ -1,5 +1,5 @@
 from discord.ui import View, InputText, Modal, Button
-from utils_wrapper import OpenFormButton
+from utils_wrapper import OpenFormButton, get_member
 import discord
 import vars
 import literals
@@ -69,13 +69,13 @@ async def check_student(member, input_text, reinput_text=None):
     # Case 1: id is not a valid student id
     extract_id = re.search(literals.regex_student['id'], input_text)
     if not extract_id:
-        embed.description = f"Please try again. {input_text} is not a valid student ID"
+        embed.description = f"Please try again. `{input_text}` is not a valid student ID."
         return embed, view
 
     student_id = int(extract_id.group(0))
     # Case 2: id is valid but not in the sheet
     if student_id not in vars.df_student.index:
-        embed.description = f"{student_id} is not in our database. Please double check your student ID and try again."
+        embed.description = f"`{student_id}` is not in our database. Please double check your student ID and try again."
         return embed, view
 
     # Case 3: id is valid and in the sheet, but already taken (by another student/their old id)
@@ -85,8 +85,8 @@ async def check_student(member, input_text, reinput_text=None):
             existing_mem = student
             break
 
-    if existing_mem:
-        embed.description = f"{student_id} is already taken by {existing_mem.mention}. "
+    if existing_mem: # taken by another student -> contact admin
+        embed.description = f"`{student_id}` is already taken by {existing_mem.mention}. "
         embed.description += "If this is your old ID and you want to use this new one, please remove the old one first. "
         embed.description += "If someone else took your ID, Please contact an admin ASAP."
         return embed, view
@@ -94,18 +94,20 @@ async def check_student(member, input_text, reinput_text=None):
     # Case 4: id is valid and in the sheet, but discord does not match with advising server id (you sure?)
     advising_id = vars.df_student.loc[student_id, "Discord ID (Adv. Verified)"]
     if advising_id != "" and advising_id != member.id:
-
+        # member's account exists in enrolment sheet with a different student id (conflict_id)
         if member.id in vars.df_student["Discord ID (Adv. Verified)"]:
             conflict_id = vars.df_student[vars.df_student["Discord ID (Adv. Verified)"]
                                           == member.id].index[0]
             conflict_name = vars.df_student.loc[conflict_id, "Name"]
             student_name = vars.df_student.loc[student_id, "Name"]
-            embed.description = f"Your account is verified as [{conflict_id}] {conflict_name.title()} in the advising server. "
-            embed.description += f"However, you tried to get verified as [{student_id}] {student_name.title()}. "
-            embed.description += "If you think this is an error, please contact an admin."
+            embed.description = f"Your discord account is verified as `[{conflict_id}] {conflict_name.title()[:21]}` in the advising server. "
+            embed.description += f"However, you are trying to get verified as `[{student_id}] {student_name.title()[:21]}`. "
+            embed.description += "If you think this is an error, please contact an admin with proper proof."
+        # member probably has alt account -> sure?
         else:
-            embed.description = f"`{student_id}` was used by account with discord id {advising_id} in the advising server. "
-            embed.description += f"Are you sure you want to use this account with student id {student_id} for this server?"
+            embed.description = f"`{student_id}` was used by account with discord account {get_member(advising_id).mention} in the advising server. "
+            embed.description += f"Are you sure you want to use this account ({member.mention}) with student id `{student_id}` for this server? "
+            embed.description += "We recommend using the same id for both servers."
 
             yes_button = Button(
                 label="Yes", style=discord.ButtonStyle.green, custom_id="yes")
@@ -135,7 +137,7 @@ async def check_student(member, input_text, reinput_text=None):
             view.add_item(no_button)
             return embed, view
 
-    # Ettuk asshe mane thik ase shob, verify kore dibo
+
     # Case 5: id is valid and in the sheet, no discord id in advising server/matches with advising id (success)
     embed = await verify_student(member, student_id)
     return embed, view
