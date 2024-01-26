@@ -12,12 +12,12 @@ git fetch --all
 git reset --hard origin/master
 
 # first run outside of tmux, if json_passed is missing
-if [ ! -f "./json_passed" ]; then
-    echo "info.json is incomplete"
+if [ ! -f "./passed.json" ]; then
+    echo "info.json checking is incomplete"
     conda activate pycord
     python first_run.py
     # if still not created after running, that means encountered some error
-    if [ ! -f "./json_passed" ]; then
+    if [ ! -f "./passed.json" ]; then
         exit 1
     fi
 

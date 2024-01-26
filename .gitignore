@@ -3,3 +3,4 @@ sheets.googleapis.com-python.json
 __pycache__
 *.xls
 json_passed
+passed.json
