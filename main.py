@@ -53,9 +53,10 @@ async def revive_buttons(info):
             # TODO: send message to #bot-config to keep the bot alive
             print(
                 f"Revived message: channel_id='{channel.id}' ▶️ {message_id=}.")
-        except:
+        except Exception as error:
             print(f"Something went wrong. Couldn't revive message: "
-                  f"channel_id='{channel_id}' ▶️ {message_id=}.")
+                  f"channel_id='{channel_id}' ▶️ {message_id=}."
+                  f"\nReturned following error:\n```{type(error).__name__}\n{error}```")
 
 
 @bot.event
@@ -157,9 +158,10 @@ async def check_everyone(ctx):
             else:
                 await verify_student(member, student_id)
                 print("reverified.")
-        except:
+        except Exception as error:
             await member.edit(roles=[], nick=None)
-            print("something went wrong, removed verification.")
+            print("Something went wrong, removed verification."
+                  f"\nReturned following error:\n```{type(error).__name__}\n{error}```")
 
     await ctx.followup.send(content="Done checking everyone!", ephemeral=True)
 
@@ -296,7 +298,7 @@ async def update_usis_before(ctx, message):
             await ctx.followup.send(content="No xls found in the this message.", ephemeral=True)
         else:
             sync_usis_before(info, valid_filenames)
-            await ctx.followup.send(content="USIS Before Updated", ephemeral=True)
+            await ctx.followup.send(content=f"USIS Before updated: {message.jump_url}")
     except:
         await ctx.followup.send(content="No attachments found in the this message.", ephemeral=True)
 
@@ -359,8 +361,9 @@ async def update_all_sections_marks(ctx):
     try:
         for sec in vars.available_sections:
             await update_sec_marks(info, sec)
-    except:
-        await ctx.followup.send("Something went wrong. Couldn't update marks.", ephemeral=True)
+    except Exception as error:
+        await ctx.followup.send("Something went wrong. Couldn't update marks."
+                                f"\nReturned following error:\n```{type(error).__name__}\n{error}```", ephemeral=True)
 
 
 @bot.slash_command(name="update-section-marks", description="Update marks of the current channel or specific section")

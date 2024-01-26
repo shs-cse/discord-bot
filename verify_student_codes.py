@@ -39,10 +39,11 @@ class SutdentIDForm(Modal):
         reinput_text = self.children[1].value
         try:
             embed, view = await check_student(interaction.user, input_text, reinput_text)
-        except:
+        except Exception as error:
             embed = discord.Embed(
                 title=":x: You could not be verified", color=discord.Color.red())
             embed.description = "Something went wrong. Please try again later."
+            embed.description += f"\nReturned following error:\n```{type(error).__name__}\n{error}```"
             view = View()  # empty view instead of None to prevent error
         await interaction.followup.send(view=view, embeds=[embed], ephemeral=True)
 
@@ -119,10 +120,11 @@ async def check_student(member, input_text, reinput_text=None):
                 await interaction.response.defer(ephemeral=True)
                 try:
                     embed = await verify_student(member, student_id)
-                except:
+                except Exception as error:
                     embed = discord.Embed(
                         title=":x: You could not be verified", color=discord.Color.red())
                     embed.description = "Something went wrong while calling `verify_student`. Please try again later."
+                    embed.description += f"\nReturned following error:\n```{type(error).__name__}\n{error}```"
                 await interaction.followup.edit_message(message_id, view=None, embeds=[embed])
 
             async def no_button_callback(interaction):
