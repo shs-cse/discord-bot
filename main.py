@@ -9,7 +9,7 @@ import re
 import discord  # upm package(py-cord)
 from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
 from json_wrapper import check_and_load, update_json
-from verify_student_codes import VerificationButtonView, verify_student
+from verify_student_codes import VerificationButtonView, verify_student, check_student
 from utils_wrapper import get_channel, get_member, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsButtonView, assign_sections
 from marks import update_sec_marks, get_df_marks_by_student_id
@@ -177,6 +177,16 @@ async def check_faculties(ctx):
             await member.edit(nick=nick_in_eee_guild)
         await assign_sections(member)
     await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
+    
+@bot.slash_command(name="verify-as-id", description="Verifies unverified members with given student ID and assigns roles by routine.")
+@bot_admin_and_higher()
+async def verify_as_id(ctx, member: discord.Member, student_id: str):
+    await ctx.defer(ephemeral=True)
+    try:
+        embed, view = await check_student(member, student_id)
+        await ctx.followup.send(view=view, embeds=[embed], ephemeral=True)
+    except:
+        await ctx.followup.send(f"Something went wrong. Could not verify {member.mention} with `ID:{student_id}`")
 
 
 @bot.slash_command(name="post-assign-faculty", description="Posts a button for faculties to auto assign section roles.")
