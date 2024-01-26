@@ -287,7 +287,7 @@ async def sync_with_sheets(ctx):
 @bot.message_command(name="Update USIS (Before)")
 @bot_admin_and_higher()
 async def update_usis_before(ctx, message):
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     try:
         valid_filenames = []
         for attachment in message.attachments:
