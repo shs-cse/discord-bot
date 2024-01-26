@@ -56,7 +56,7 @@ async def revive_buttons(info):
         except Exception as error:
             print(f"Something went wrong. Couldn't revive message: "
                   f"channel_id='{channel_id}' ▶️ {message_id=}."
-                  f"\nReturned following error:\n```{type(error).__name__}\n{error}```")
+                  f"\nReturned following error:\n```\n{type(error).__name__}\n{error}\n```")
 
 
 @bot.event
@@ -161,7 +161,7 @@ async def check_everyone(ctx):
         except Exception as error:
             await member.edit(roles=[], nick=None)
             print("Something went wrong, removed verification."
-                  f"\nReturned following error:\n```{type(error).__name__}\n{error}```")
+                  f"\nReturned following error:\n```\n{type(error).__name__}\n{error}\n```")
 
     await ctx.followup.send(content="Done checking everyone!", ephemeral=True)
 
@@ -199,7 +199,7 @@ async def verify_as_id(ctx,
         await ctx.followup.send(view=view, embeds=[embed], ephemeral=True)
     except Exception as error:
         await ctx.followup.send(f"Something went wrong. Could not verify {member.mention} with `ID:{student_id}`." 
-                                f" Returned following error:\n```{type(error).__name__}\n{error}```")
+                                f" Returned following error:\n```\n{type(error).__name__}\n{error}\n```")
 
 
 @bot.slash_command(name="post-assign-faculty", description="Posts a button for faculties to auto assign section roles.")
@@ -363,7 +363,7 @@ async def update_all_sections_marks(ctx):
             await update_sec_marks(info, sec)
     except Exception as error:
         await ctx.followup.send("Something went wrong. Couldn't update marks."
-                                f"\nReturned following error:\n```{type(error).__name__}\n{error}```", ephemeral=True)
+                                f"\nReturned following error:\n```\n{type(error).__name__}\n{error}\n```", ephemeral=True)
 
 
 @bot.slash_command(name="update-section-marks", description="Update marks of the current channel or specific section")
