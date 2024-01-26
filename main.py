@@ -332,7 +332,7 @@ async def post_as_bot(ctx, message, channel: discord.Option(discord.TextChannel,
 
 
 @bot.slash_command(name="update-all-sections-marks", description="Update marks of the all sections")
-@faculty_and_higher()
+@bot_admin_and_higher()
 async def update_all_sections_marks(ctx):
     await ctx.defer(ephemeral=True)
     try:
