@@ -9,7 +9,7 @@ import re
 import discord  # upm package(py-cord)
 from sync import sync_init, sync_roles, sync_sheets, sync_usis_before
 from json_wrapper import check_and_load, update_json
-from verify_student_codes import VerificationButtonView, verify_student
+from verify_student_codes import VerificationButtonView, verify_student, check_student
 from utils_wrapper import get_channel, get_member, bot_admin_and_higher, faculty_and_higher, get_link_from_sheet_id
 from assign_sections_button import AssignSectionsButtonView, assign_sections
 from marks import update_sec_marks, get_df_marks_by_student_id
@@ -177,6 +177,26 @@ async def check_faculties(ctx):
             await member.edit(nick=nick_in_eee_guild)
         await assign_sections(member)
     await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
+    
+
+async def get_student_id_list(ctx: discord.AutocompleteContext):
+    try:
+        return vars.df_student.index.to_list()
+    except:
+        return []
+    
+@bot.slash_command(name="verify-as-id", description="Verifies unverified members with given student ID and assigns roles by routine.")
+@bot_admin_and_higher()
+async def verify_as_id(ctx, 
+                       member: discord.Member, 
+                       student_id: discord.Option(int, 
+                            autocomplete=discord.utils.basic_autocomplete(get_student_id_list))):
+    await ctx.defer(ephemeral=True)
+    try:
+        embed, view = await check_student(member, str(student_id))
+        await ctx.followup.send(view=view, embeds=[embed], ephemeral=True)
+    except:
+        await ctx.followup.send(f"Something went wrong. Could not verify {member.mention} with `ID:{student_id}`")
 
 
 @bot.slash_command(name="post-assign-faculty", description="Posts a button for faculties to auto assign section roles.")
@@ -194,6 +214,9 @@ async def post_assign_faculty(ctx):
 @bot_admin_and_higher()
 async def post_verify(ctx):
     await ctx.defer(ephemeral=True)
+    if vars.df_student.empty:
+        await ctx.followup.send(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+        return
     button_view = VerificationButtonView()
     message = await ctx.channel.send(literals.messages['student_verify'],
                                      view=button_view)
@@ -205,6 +228,9 @@ async def post_verify(ctx):
 @bot_admin_and_higher()
 async def post_rules(ctx):
     await ctx.defer(ephemeral=True)
+    if vars.df_student.empty:
+        await ctx.followup.send(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+        return
     button_view = VerificationButtonView()
     message = await ctx.channel.send(literals.messages['short_rules'],
                                      view=button_view)
@@ -224,6 +250,9 @@ async def revive_all_buttons(ctx):
 @bot_admin_and_higher()
 async def revive_verify(ctx, message):
     try:
+        if vars.df_student.empty:
+            await ctx.respond(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+            return
         button_view = VerificationButtonView()
         message = await message.edit(view=button_view)
         log_message_view(info, message, button_view)
@@ -322,7 +351,18 @@ async def post_as_bot(ctx, message, channel: discord.Option(discord.TextChannel,
     await ctx.followup.send(f"Posted {message_obj.jump_url} to {channel.mention}", ephemeral=True)
 
 
-@bot.slash_command(name="update-section-marks", description="Update marks of the current channel")
+@bot.slash_command(name="update-all-sections-marks", description="Update marks of the all sections")
+@bot_admin_and_higher()
+async def update_all_sections_marks(ctx):
+    await ctx.defer(ephemeral=True)
+    try:
+        for sec in vars.available_sections:
+            await update_sec_marks(info, sec)
+    except:
+        await ctx.followup.send("Something went wrong. Couldn't update marks.", ephemeral=True)
+
+
+@bot.slash_command(name="update-section-marks", description="Update marks of the current channel or specific section")
 @faculty_and_higher()
 async def update_section_marks(ctx, section: discord.Option(int, required=False, description="Integer. Enter the section whose marks you want to update.")):
     await ctx.defer(ephemeral=True)

@@ -2,7 +2,7 @@ import re
 import os
 import literals
 import json
-from pygsheets_wrapper import copy_sheet, get_sheet
+from pygsheets_wrapper import copy_sheet, get_sheet, allow_access
 from utils_wrapper import get_sheet_id_from_link, get_link_from_sheet_id
 
 
@@ -25,8 +25,14 @@ def check_and_load(file):
 
     assert info['n_sections'] > 0, "Number of sections must be positive"
     if missing := info['missing_sections']:
+        assert 1 not in missing, "Section 1 is used as template, can't be a missing section."
         assert set(missing).issubset(
             range(1, info['n_sections'])), "Missing sections that don't exist"
+        
+    # original routine spreadsheet id
+    if not info['routine_sheet_id']:
+        info['routine_sheet_id'] = get_sheet_id_from_link(input("Enter the Routine sheet ID: "))
+        update_json(info,file)
 
     # enrolment sheet check
     if not info['enrolment']:
@@ -34,13 +40,12 @@ def check_and_load(file):
             f"Enrolment sheet ID is not specified in {file}, creating a new one...")
         sheet_id = create_from_template('enrolment', info)
         routine_sheet = get_sheet(sheet_id, "Routine")
-        print(f"\033[1;31m"  # bold red
-              f"Please ALLOW ACCESS at: {routine_sheet.url}"
-              f"\033[0;0m"  # normal text
-              )
+        allow_access(sheet_id, info['routine_sheet_id'])
         info['enrolment'] = sheet_id
         update_json(info, file)
         routine_sheet.spreadsheet.share('', role='reader', type='anyone')
+    else:
+        routine_sheet = get_sheet(info['enrolment'], "Routine")
 
     # marks sheets check
     # grouping
@@ -50,6 +55,11 @@ def check_and_load(file):
         #     marks_groups = input(
         #         "Enter list of lists for marks sheet group (e.g. [[1,2],[10]]): ")
         #     info['marks_groups'] = json.loads(marks_groups)
+        
+        # fetch marks groups by theory faculty from routine sheet
+        if not info['marks_groups']:
+            info['marks_groups'] = json.loads(routine_sheet.get_value("L2"))
+            update_json(info, file)
         # assert that marks_groups is of type list[list[int]]
         assert all(isinstance(marks_group, list)
                    for marks_group in info['marks_groups'])
@@ -179,7 +189,7 @@ def build_edit_buffer(sheet, info):
                 'B6': info['semester'],
                 'B4': info['n_sections'],
                 'B5': ','.join(str(ms) for ms in info['missing_sections']),
-                'B16': get_sheet_id_from_link(input("Enter the Routine sheet ID: "))
+                'B16': info['routine_sheet_id']
             }
         }
     elif sheet == 'marks':

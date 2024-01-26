@@ -10,6 +10,7 @@ from marks import update_sec_marks
 
 
 async def sync_init(bot, info):
+    print("Syncing initialization...")
     vars.guild = bot.get_guild(info['guild_id'])
     vars.eee_guild = bot.get_guild(literals.guild_eee_faculty)
     vars.available_sections = [sec for sec in range(1, info['n_sections']+1)
@@ -20,9 +21,11 @@ async def sync_init(bot, info):
         invite = await welcome.create_invite(max_age=0, max_uses=0)
         info['invite'] = invite.url
         update_json(info, vars.json_file)
+    print("... complete!")
 
 
 async def sync_roles(info):
+    print("Syncing roles...")
     vars.faculty_role = get_role("faculty")
     vars.thoery_and_lab_faculty_roles[literals.class_types[0]] = get_role(
         "theory-faculty")
@@ -41,6 +44,7 @@ async def sync_roles(info):
     vars.all_sec_roles = {roles[ctype]
                           for roles in vars.sec_roles.values()
                           for ctype in literals.class_types}
+    print("... complete!")
 
 
 async def sync_sheets(info):
@@ -50,14 +54,14 @@ async def sync_sheets(info):
         info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_student = vars.df_student[vars.df_student.index != '']
     vars.df_routine = get_sheet_data(info["enrolment"], "Routine")
-    # TODO: uncomment. commented for debugging.
     # for tracking which student's mark is in which section's sheet
     vars.df_marks_section = vars.df_student[['Discord ID']]
     vars.df_marks_section.insert(1, 'Marks Section', 0)  # new column
     vars.df_marks_section.set_index(
         [vars.df_marks_section.index, 'Discord ID'], inplace=True)
-    for sec in vars.available_sections:
-        await update_sec_marks(info, sec)
+    # commented coz takes too much time, use /update-section-marks instead
+    # for sec in vars.available_sections:
+    #     await update_sec_marks(info, sec)
 
     # push
     print("Pushing discord data to sheets...")
@@ -65,7 +69,7 @@ async def sync_sheets(info):
     arr_updated = []
     for k, mem in enumerate(vars.guild.members):
         arr_updated.append([])
-        arr_updated[k] += [mem.name, str(mem.id), mem.nick, mem.roles[0].name]
+        arr_updated[k] += [mem.name, str(mem.id), mem.display_name, mem.roles[0].name]
         # primary and secondary roles
         sorted_roles = [role.name for role in mem.roles[1:]]
         sorted_roles.sort()
@@ -109,3 +113,4 @@ def sync_usis_before(info, filenames):
     vars.df_student = get_sheet_data(
         info["enrolment"], "StudentList").set_index("Student ID")
     vars.df_student = vars.df_student[vars.df_student.index != '']
+    vars.df_routine = get_sheet_data(info["enrolment"], "Routine")

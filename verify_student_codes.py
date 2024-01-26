@@ -26,12 +26,19 @@ class SutdentIDForm(Modal):
                       min_length=8,
                       max_length=8,
                       required=True))
+        self.add_item(
+            InputText(label="Retype your ***Student ID***.",
+                      placeholder="00000000",
+                      min_length=8,
+                      max_length=8,
+                      required=True))
 
     async def callback(self, interaction: discord.Interaction):
-        input_text = self.children[0].value
         await interaction.response.defer(ephemeral=True)
+        input_text = self.children[0].value
+        reinput_text = self.children[1].value
         try:
-            embed, view = await check_student(input_text, interaction.user)
+            embed, view = await check_student(interaction.user, input_text, reinput_text)
         except:
             embed = discord.Embed(
                 title=":x: You could not be verified", color=discord.Color.red())
@@ -40,18 +47,25 @@ class SutdentIDForm(Modal):
         await interaction.followup.send(view=view, embeds=[embed], ephemeral=True)
 
 
-async def check_student(input_text, member):
+async def check_student(member, input_text, reinput_text=None):
     # possible cases:
+    # 0. retyped input does not match
     # 1. id is not a valid student id
     # 2. id is valid but not in the sheet
     # 3. id is valid and in the sheet, but already taken (by another student/their old id. by another -> contact admin. by their old id -> remove old id from sheet)
     # 4. id is valid and in the sheet, but discord does not match with advising server id (you sure?)
     # 5. id is valid and in the sheet, no discord id in advising server/matches with advising id (success)
 
-    # Handle case 1-4: failure
+    # Handle case 0-4: failure
     embed = discord.Embed(
         title=":x: You could not be verified", color=discord.Color.red())
     view = View()  # empty view instead of None to prevent error
+    
+    # Case 0: retyped input does not match
+    if reinput_text and reinput_text != input_text:
+        embed.description = f"Please try again. Your inputs `{input_text}` and `{reinput_text}` does not match."
+        return embed, view
+    
     # Case 1: id is not a valid student id
     extract_id = re.search(literals.regex_student['id'], input_text)
     if not extract_id:

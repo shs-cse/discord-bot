@@ -4,11 +4,11 @@
     "semester":"<semester> <yyyy>",
     "n_sections":0,
     "missing_sections":[],
+    "routine_sheet_id": "",
 
 
     "guild_id": 0,
     "bot_token": "",
-    "admins": [],
     "invite":"",
 
     

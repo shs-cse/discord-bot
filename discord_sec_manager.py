@@ -4,14 +4,18 @@ from utils_wrapper import get_role, get_category
 
 async def check_discord_sec(info):
     # skip section 01, works as template
-    for sec in vars.available_sections[1:]:
-        for ctype in literals.class_types:
+    for ctype in literals.class_types:
+        prev_category = get_sec_category(1, ctype)
+        for sec in vars.available_sections[1:]:
             role = get_sec_role(sec, ctype)
             if not role:
                 role = await create_sec_role(sec, ctype)
             category = get_sec_category(sec, ctype)
             if not category:
                 category = await create_sec_category(sec, ctype, role)
+            # reorder: theory of all sections, then labs of all sections
+            await category.move(after=prev_category)
+            prev_category = category
 
 
 async def create_sec_role(section, class_type):
