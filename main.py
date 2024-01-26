@@ -249,31 +249,31 @@ async def revive_all_buttons(ctx):
     await ctx.followup.send("Revived all buttons.", ephemeral=True)
 
 
-@bot.message_command(name="Revive as 'Verify Me'")
-@bot_admin_and_higher()
-async def revive_verify(ctx, message):
-    try:
-        if vars.df_student.empty:
-            await ctx.respond(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
-            return
-        button_view = VerificationButtonView()
-        message = await message.edit(view=button_view)
-        log_message_view(info, message, button_view)
-        await ctx.respond(f"message revived as 'verify me': {message.jump_url}", ephemeral=True, delete_after=3)
-    except:
-        await ctx.respond("failed to revive message.", ephemeral=True)
+# @bot.message_command(name="Revive as 'Verify Me'")
+# @bot_admin_and_higher()
+# async def revive_verify(ctx, message):
+#     try:
+#         if vars.df_student.empty:
+#             await ctx.respond(f"[Enrolment sheet]({get_link_from_sheet_id(info['enrolment'])}) does not have any student!!")
+#             return
+#         button_view = VerificationButtonView()
+#         message = await message.edit(view=button_view)
+#         log_message_view(info, message, button_view)
+#         await ctx.respond(f"message revived as 'verify me': {message.jump_url}", ephemeral=True, delete_after=3)
+#     except:
+#         await ctx.respond("failed to revive message.", ephemeral=True)
 
 
-@bot.message_command(name="Revive as 'Generate Sec Access'")
-@bot_admin_and_higher()
-async def revive_sec_access(ctx, message):
-    try:
-        button_view = AssignSectionsButtonView()
-        message = await message.edit(view=button_view)
-        log_message_view(info, message, button_view)
-        await ctx.respond(f"message revived as 'generate section access': {message.jump_url}", ephemeral=True, delete_after=3)
-    except:
-        await ctx.respond("failed to revive message.", ephemeral=True)
+# @bot.message_command(name="Revive as 'Generate Sec Access'")
+# @bot_admin_and_higher()
+# async def revive_sec_access(ctx, message):
+#     try:
+#         button_view = AssignSectionsButtonView()
+#         message = await message.edit(view=button_view)
+#         log_message_view(info, message, button_view)
+#         await ctx.respond(f"message revived as 'generate section access': {message.jump_url}", ephemeral=True, delete_after=3)
+#     except:
+#         await ctx.respond("failed to revive message.", ephemeral=True)
 
 
 @bot.slash_command(name="sync-sheets", description="Sync updates from enrolment sheet and marks sheets with bot.")
