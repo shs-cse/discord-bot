@@ -178,12 +178,22 @@ async def check_faculties(ctx):
         await assign_sections(member)
     await ctx.followup.send(content="Done checking faculties!", ephemeral=True)
     
+
+async def get_student_id_list(ctx: discord.AutocompleteContext):
+    try:
+        return vars.df_student.index.to_list()
+    except:
+        return []
+    
 @bot.slash_command(name="verify-as-id", description="Verifies unverified members with given student ID and assigns roles by routine.")
 @bot_admin_and_higher()
-async def verify_as_id(ctx, member: discord.Member, student_id: str):
+async def verify_as_id(ctx, 
+                       member: discord.Member, 
+                       student_id: discord.Option(int, 
+                            autocomplete=discord.utils.basic_autocomplete(get_student_id_list))):
     await ctx.defer(ephemeral=True)
     try:
-        embed, view = await check_student(member, student_id)
+        embed, view = await check_student(member, str(student_id))
         await ctx.followup.send(view=view, embeds=[embed], ephemeral=True)
     except:
         await ctx.followup.send(f"Something went wrong. Could not verify {member.mention} with `ID:{student_id}`")
