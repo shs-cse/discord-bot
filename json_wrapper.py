@@ -7,16 +7,22 @@ from utils_wrapper import get_sheet_id_from_link, get_link_from_sheet_id
 
 
 def check_and_load(file):
-    # use the `json_passed` file to indicate of all the fields are okay
-    # useful for first run
-    if os.path.exists("./json_passed"):
-        os.remove("./json_passed")
-
     # google sheets credentials
-    assert os.path.exists(
-        "./credentials.json"), "Google sheets credentials.json file was not provided in the directory."
+    assert os.path.exists("credentials.json"), "Google sheets credentials.json file was not provided in the directory."
 
     info = read_json(file)
+    
+    # use the `json_passed` file to indicate of all the fields are okay
+    if os.path.exists('passed.json'):
+        passed = read_json('passed.json')
+        # matches all values with previously passed json (except buttons)
+        if all(info[key] == passed[key] for key in info.keys() if key != 'buttons'):
+            print("Check complete! Matches previously passed json.")
+            update_json(info, 'passed.json')
+            return info
+        else: # mismatch
+            os.remove('passed.json')
+                
 
     # course info check
     for field, pattern in literals.regex_course.items():
@@ -154,8 +160,7 @@ def check_and_load(file):
                 """
 
     # passed all tests
-    with open("json_passed", 'w') as f:
-        f.write("Passed!\n")
+    update_json(info, 'passed.json')
     # # finally print all fields
     # for field in info:
     #     print(f"{field} = {info[field]}")
