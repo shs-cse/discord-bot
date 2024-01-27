@@ -3,7 +3,7 @@ import os
 import literals
 import json
 from pygsheets_wrapper import copy_sheet, get_sheet, allow_access
-from utils_wrapper import get_sheet_id_from_link, get_link_from_sheet_id
+from utils_wrapper import get_sheet_id_from_link
 
 
 def check_and_load(file):
@@ -39,6 +39,16 @@ def check_and_load(file):
     if not info['routine_sheet_id']:
         info['routine_sheet_id'] = get_sheet_id_from_link(input("Enter the Routine sheet ID: "))
         update_json(info,file)
+    elif info['enrolment']:
+        course_info_sheet = get_sheet(info['enrolment'], 'Course Info')
+        enrolment_routine_sheet_id = course_info_sheet.get_value('B16')
+        if info['routine_sheet_id'] != enrolment_routine_sheet_id:
+            # edit enrolment sheet's routine id
+            course_info_sheet.update_value('B16', info['routine_sheet_id'])
+            #allow access
+            allow_access(info['enrolment'], info['routine_sheet_id'])
+
+            
 
     # enrolment sheet check
     if not info['enrolment']:
