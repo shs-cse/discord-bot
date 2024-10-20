@@ -128,6 +128,17 @@ On the [DigitalOcean website you can find how to upload your ssh key](https://do
   > If the previous command fails, please use the command
   > <br>
   > `ssh -i ~/.ssh/id_rsa root@IP_ADDRESS`
+  
+  > <picture>
+  >   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/note.svg">
+  >   <img alt="Note" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/note.svg">
+  > </picture><br>
+  >
+  > If you see a prompt to confirm connecting, enter `yes`
+  > <br>
+  > `Are you sure you want to continue connecting (yes/no/[fingerprint])?`
+  > <br>
+  > Type `yes` and press <kbd>&#x2003;<br>&#x2003; Enter &#x2003;<br>&#x2003;</kbd>
 - Using `root` user is insecure. Let's create a new user:
   ```bash
   adduser username
