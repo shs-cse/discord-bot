@@ -43,6 +43,7 @@ We need to create an "account" (it's actually called a bot _application_) for th
 ### Google Credentials
 - Download the `credentials.json` file (rename if necessary) following [this tutorial](https://pygsheets.readthedocs.io/en/stable/authorization.html).
 - Make sure to use google credentials `Oauth Client ID` > `Desktop App`
+- Also, `OAuth Consent Screen` (or `Google Auth Platform/Audience`) > `Make External` and add your gsuite email as a `Test user`.
 
 ### Buy Cloud Service
 We shall be using a [DigitalOcean Droplet server](https://www.digitalocean.com/pricing/droplets#basic-droplets) for our cloud service.
