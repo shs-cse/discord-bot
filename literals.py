@@ -42,7 +42,7 @@ regex_marks_group = r"^\[\s*(\s*(\s*\[\s*([1-9][0-9]*\s*,\s*)*[1-9][0-9]*\s*\]\s
 template = {
     "guild": "https://discord.new/RVh3qBrGcsxA",
     "enrolment": "1HzCwb68D3L2sC4WFEBYajz4co5sQvtgSpp2fIf8aMqc",
-    "marks": "1wfamZfPPXvYxHegBEngxonPtBmJBiFT5D0WAvwLchY0"
+    "marks": "1SqQkkIbbsnSGcAbQ8si3UfitUs6b-cFTJ8fit9UoWp8" # "1wfamZfPPXvYxHegBEngxonPtBmJBiFT5D0WAvwLchY0"
 }
 
 info_row_dict = {'Helper Text': 4, 'Parent Column': 9, 'Self Column': 14, 'Depth': 23,
